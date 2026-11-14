@@ -133,10 +133,10 @@ async function reco(st, city, c, ll, rad, cc) {
   const key = "rc/" + (+lat).toFixed(3) + "_" + (+lon).toFixed(3) + "/" + R + "/" + c.map((x) => x[0]).join("-");
   const hit = await st.get(key, { type: "json" }).catch(() => null);
   if (hit && Date.now() - hit.t < 432e5) return J({ items: hit.items });
-  const q = "[out:json][timeout:5];(" + c.map((x) => `nwr["amenity"="restaurant"]["name"]["cuisine"~"${x[1]}"](around:${R},${lat},${lon});`).join("") + ");out center tags 150;";
+  const q = "[out:json][timeout:9];(" + c.map((x) => `nwr["amenity"="restaurant"]["name"]["cuisine"~"${x[1]}"](around:${R},${lat},${lon});`).join("") + ");out center tags 150;";
   let els = null;
   try {
-    const d = await Promise.any(MIR.map((m) => jf(m, { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body: "data=" + encodeURIComponent(q) }, 5500)));
+    const d = await Promise.any(MIR.map((m) => jf(m, { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body: "data=" + encodeURIComponent(q) }, 9500)));
     els = d.elements;
   } catch {}
   const out = [], seen = new Set();
@@ -150,16 +150,27 @@ async function reco(st, city, c, ll, rad, cc) {
         out.push({ nom: t.name, cuisine: n, ad: [t["addr:housenumber"], t["addr:street"]].filter(Boolean).join(" "), site: url(t.website || t["contact:website"]), lat: e.lat ?? e.center?.lat ?? null, lon: e.lon ?? e.center?.lon ?? null });
       });
     });
-  } else if (city) {
-    await Promise.all(c.map(async ([n, re]) => {
+  } else {
+    /* secours : Nominatim, strictement limité à la zone autour de la ville (jamais une homonyme à l'autre bout du monde) */
+    const dy = 0.06, dx = dy / Math.max(Math.cos((+lat * Math.PI) / 180), 0.2);
+    const vb = `${(+lon - dx).toFixed(4)},${(+lat + dy).toFixed(4)},${(+lon + dx).toFixed(4)},${(+lat - dy).toFixed(4)}`;
+    await Promise.all(c.slice(0, 4).map(async ([n, re]) => {
       try {
-        const r = await jf("https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=12&accept-language=fr&q=" + encodeURIComponent(re.split("|")[0] + " restaurant " + city), {}, 3000);
+        const r = await jf("https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=15&bounded=1&accept-language=fr&viewbox=" + vb + "&q=" + encodeURIComponent(re.split("|")[0].replace(/_/g, " ") + " restaurant"), {}, 3500);
         r.filter((p) => p.category === "amenity" && p.type === "restaurant" && p.name).slice(0, 8).forEach((p) => {
           const a = p.address || {};
           out.push({ nom: p.name, cuisine: n, ad: [a.house_number, a.road].filter(Boolean).join(" "), site: "", lat: +p.lat, lon: +p.lon });
         });
       } catch {}
     }));
+  }
+  /* filet de sécurité : on écarte tout ce qui est à plus de 12 km du centre demandé */
+  for (let i = out.length - 1; i >= 0; i--) {
+    const o = out[i];
+    if (o.lat != null && o.lon != null) {
+      const t = Math.PI / 180, x = Math.sin(((o.lat - lat) * t) / 2) ** 2 + Math.cos(lat * t) * Math.cos(o.lat * t) * Math.sin(((o.lon - lon) * t) / 2) ** 2;
+      if (2 * 6371e3 * Math.asin(Math.sqrt(x)) > 12000) out.splice(i, 1);
+    }
   }
   if (!out.length) return J({ e: els ? "Rien trouvé dans cette zone." : "Les services de cartes sont indisponibles. Réessaie dans un instant." }, els ? 404 : 503);
   if (els) await st.setJSON(key, { t: Date.now(), items: out }).catch(() => {});
