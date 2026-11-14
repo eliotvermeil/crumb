@@ -8,7 +8,7 @@
 <title>Crumb</title>
 <link rel="stylesheet" href="/vendor/fonts.css"><script src="/config.js"></script><script src="/legal.js"></script><script src="/i18n.js"></script>
 <style>
-:root{--sb:min(var(--sb),14px);color-scheme:light;--bg:#fdf9f3;--ink:#111;--mute:#8b8378;--line:#e9e1d4;--sheet:#fffdf9;--off:#d9d1c3;--star:#f2a516;--hv:"Inter Tight","Helvetica Neue",Arial,sans-serif;--acc:#f4b6cb;--star:#FF4FA9;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
+:root{--sb:min(env(safe-area-inset-bottom,0px),14px);color-scheme:light;--bg:#fdf9f3;--ink:#111;--mute:#8b8378;--line:#e9e1d4;--sheet:#fffdf9;--off:#d9d1c3;--star:#f2a516;--hv:"Inter Tight","Helvetica Neue",Arial,sans-serif;--acc:#f4b6cb;--star:#FF4FA9;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#12100e;--ink:#f6efe4;--mute:#9a9082;--line:#2e2922;--sheet:#1c1915;--off:#3a352d}}
 :root[data-theme="dark"]{color-scheme:dark;--bg:#12100e;--ink:#f6efe4;--mute:#9a9082;--line:#2e2922;--sheet:#1c1915;--off:#3a352d}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
@@ -255,7 +255,7 @@ button:active:not(:disabled),.card:active{transform:scale(.96)}
 .dock .big:active{transform:scale(.94)}
 .recap,.stat,.rc,.fr{animation:rise .35s both;animation-delay:calc(var(--i,0)*30ms)}
 .ptr{background:none!important;padding:0!important;border-radius:0!important;width:30px;height:30px;color:#FF4FA9}
-.ptr svg,.syn.run svg{display:block;width:100%;height:100%;fill:#FF4FA9;animation:spinstar .9s linear infinite}
+.ptr{opacity:0;visibility:hidden}.ptr.on{opacity:1;visibility:visible}.ptr svg,.syn.run svg{display:block;width:100%;height:100%;fill:#FF4FA9}.ptr.on svg,.syn.run svg{animation:spinstar .8s linear infinite}
 .syn.run{height:26px!important;padding-top:4px!important}.syn.run svg{width:20px;height:20px;margin:0 auto}
 @keyframes spinstar{to{transform:rotate(360deg)}}
 .ptr{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:50%;transform:translate(-50%,-60px);z-index:60;background:var(--ink);color:var(--bg);border-radius:99px;padding:6px 14px;font:600 12px var(--ui);transition:transform .2s}.ptr.on{transform:translate(-50%,0)}
