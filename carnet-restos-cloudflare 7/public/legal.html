@@ -1,0 +1,11 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Crumb – Informations légales</title><meta name="robots" content="index,follow"><link rel="icon" href="/icon.svg"><link rel="stylesheet" href="/vendor/fonts.css">
+<style>:root{--bg:#f6f4ef;--ink:#1D1D1B;--mute:#6c675f;--line:#e2ded4}@media(prefers-color-scheme:dark){:root{--bg:#0e0e0d;--ink:#f2efe8;--mute:#a39d92;--line:#252421}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Manrope,system-ui,sans-serif}main{max-width:680px;margin:0 auto;padding:28px 20px 80px}
+.wm{font:600 11px "Inter Tight",sans-serif;letter-spacing:.3em;color:var(--mute)}h1{font:600 38px/1.05 "Inter Tight",sans-serif;letter-spacing:-.05em;margin:8px 0 6px}h3{font:600 17px "Inter Tight",sans-serif;margin:26px 0 4px}p,li{margin:6px 0}a{color:inherit}small{color:var(--mute)}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 8px}nav a{border:1px solid var(--line);border-radius:99px;padding:8px 14px;font:500 14px "Inter Tight",sans-serif;text-decoration:none}nav a.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}</style></head>
+<body><main><div class="wm">CRUMB®</div><h1 id="t"></h1><nav id="n"></nav><div id="b"></div><p style="margin-top:40px"><a href="/">← Retour à Crumb</a></p></main>
+<script src="/legal.js"></script><script>
+var K=new URLSearchParams(location.search).get("p")||"priv",D=window.LEGALDOC;if(!D.LG[K])K="priv";
+document.title="Crumb – "+D.LG[K][0];document.getElementById("t").textContent=D.LG[K][0];document.getElementById("b").innerHTML=D.LG[K][1]();
+document.getElementById("n").innerHTML=[["cgu","Conditions"],["priv","Confidentialité"],["mentions","Mentions légales"],["cred","Crédits"]].map(function(x){return '<a class="'+(x[0]===K?"on":"")+'" href="/legal.html?p='+x[0]+'">'+x[1]+'</a>'}).join("");
+</script></body></html>
