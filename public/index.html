@@ -445,7 +445,7 @@ dialog::backdrop{background:rgba(10,10,9,.42);backdrop-filter:blur(3px);-webkit-
 </dialog>
 <dialog id="dAP"><div class="grab"></div><h2>Ajouter des spots</h2><input id="apq" type="search" placeholder="Rechercher…" style="margin:12px 0"><div id="apl"></div><div class="acts"><button class="pri" id="apX">Terminé</button></div></dialog>
 <dialog id="dOb"><div class="grab"></div><div class="obd" id="obD"></div><h2 id="obT" style="font-size:32px;margin-top:14px"></h2><p id="obP" style="font:500 22px var(--ui);color:var(--mute)"></p><div class="acts"><button id="obS">Passer</button><button class="pri" id="obN">Suivant</button></div></dialog>
-<dialog id="dNt"><div class="grab"></div><h2>Notifications</h2><div id="ntB" style="margin-top:10px"></div><div class="acts"><button id="ntX">Fermer</button></div></dialog>
+<dialog id="dNt"><div class="grab"></div><h2>Notifications</h2><div id="ntB" style="margin-top:10px"></div><div id="ntPush" class="note" style="margin-top:14px"></div><div class="acts"><button id="ntX">Fermer</button></div></dialog>
 <dialog id="dAcc"><div class="grab"></div><h2 id="acT">Compte</h2><div id="acW" class="note">Cette action est définitive : ton compte et tes données en ligne seront supprimés.</div><input id="acO" type="password" autocomplete="current-password" style="margin-top:12px"><input id="acN" type="password" autocomplete="new-password" placeholder="Nouveau mot de passe (8 caractères min.)" style="margin-top:8px"><div class="note" id="acE" style="color:#df554b"></div><div class="acts"><button id="acX">Annuler</button><button class="pri" id="acS">Valider</button></div></dialog>
 <dialog id="dSet"><div class="grab"></div><h2>Réglages</h2><div id="setB"></div><div class="acts"><button class="pri" id="setX">Fermer</button></div></dialog>
 <dialog id="dLg"><div class="grab"></div><div class="cg" id="lgT" style="flex-wrap:nowrap;overflow-x:auto"></div><div id="lgB" class="legal"></div><div class="acts"><button class="pri" id="lgX">Fermer</button></div></dialog>
@@ -474,7 +474,7 @@ const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
 const LS="carnet-restos";
 let items=[],tab="spots",fCuis="Toutes",fSort="date",editing=null,rating=0,photo="",fCuisSel="Française",lien="";
 let tok=lsGet("cr-tok")||"",me=lsGet("cr-me")||"",viewing=null,soc={fr:[],rq:[]},authErr="",sugs=[],st=null;
-let reco=[],recoState="idle",recoErr="",pt,sgT,listMode="faits",feed=[],pickSlot=0,pp;
+let reco=[],recoState="idle",recoErr="",recoQ=0,pt,sgT,listMode="faits",feed=[],pickSlot=0,pp;
 let prof={};try{prof=JSON.parse(lsGet("cr-prof")||"{}")}catch(e){}
 const live=()=>items.filter(x=>!x.del&&!x.album);
 const mig=a=>a.forEach(x=>{if(!x.del&&x.nv!==2){if(x.note)x.note*=2;x.nv=2;x.maj=Date.now()}if(!x.del&&x.prix>0&&x.prix<=3&&!x.pe){x.prix=[0,15,30,60][x.prix];x.pe=1;x.maj=Date.now()}});
@@ -553,24 +553,46 @@ XH.nearGo=async()=>{
 function renderReco(){
   if(disc!=="pt")return renderDisc();
   const have=new Set(live().map(x=>x.nom.toLowerCase()));
-  let h=modeChips()+discChips()+`<div class="ser" style="font-size:22px;margin:12px 0 10px">De vraies adresses, selon les cuisines que tu aimes.</div><label style="margin-top:6px">Ta ville</label><div class="row"><input id="city" value="${esc(lsGet("cr-city")||"")}" placeholder="Paris, Lyon, Bordeaux…"><button class="pillbtn" data-act="goReco" style="flex:0 0 auto">${recoState==="loading"?"…":"Trouver"}</button></div><div class="note">Adresses issues d’OpenStreetMap. Ouvre la fiche pour voir les avis et les photos.</div>`;
+  let h=modeChips()+discChips()+`<div class="ser" style="font-size:22px;margin:12px 0 10px">De vraies adresses, selon les cuisines que tu aimes.</div><label style="margin-top:6px">Ta recherche</label><div class="row"><input id="city" value="${esc(lsGet("cr-q")||lsGet("cr-city")||"")}" placeholder="asiatique paris, ramen, pizza lyon…" enterkeyhint="search" autocapitalize="off"><button class="pillbtn" data-act="goReco" style="flex:0 0 auto">${recoState==="loading"?"…":"Trouver"}</button></div><div class="note">Cuisine + ville, par exemple « asiatique Paris » ou « ramen Lyon ». Sans cuisine, on te propose celles que tu aimes. Adresses issues d’OpenStreetMap.</div>`;
   if(recoState==="loading")h+=`<div class="sk"></div><div class="sk"></div><div class="sk"></div>`;
   else if(recoErr)h+=`<div class="empty"><i>${esc(recoErr)}</i></div>`;
-  else if(!live().length)h+=`<div class="empty"><b>Commence ton carnet</b><i>Ajoute quelques restos notés pour recevoir des idées.</i></div>`;
-  else h+=reco.map((r,i)=>{const c=col(r.cuisine),w=have.has(r.nom.toLowerCase());return `<div class="rc" style="--cb:${c.b};--cf:${c.f}"><span class="k">${flag(r.cuisine)} ${esc(r.cuisine)}${r.ad?" · "+esc(r.ad):""}</span><h3>${esc(r.nom)}</h3><p>Parce que tu aimes la cuisine ${esc(r.cuisine.toLowerCase())}.</p><a class="xa" target="_blank" rel="noopener" href="${r.lien}">Voir la fiche</a>${r.site?` <a class="xa" target="_blank" rel="noopener" href="${esc(su(r.site,"#"))}">Site</a>`:""}<button data-act="wish" data-i="${i}" ${w?'disabled style="opacity:.6"':""}>${w?"Dans ma liste":"À tester"}</button></div>`}).join("");
+  else if(!live().length&&!reco.length&&recoState==="idle")h+=`<div class="empty"><b>Commence ton carnet</b><i>Ajoute quelques restos notés pour recevoir des idées.</i></div>`;
+  else h+=reco.map((r,i)=>{const c=col(r.cuisine),w=have.has(r.nom.toLowerCase());return `<div class="rc" style="--cb:${c.b};--cf:${c.f}"><span class="k">${flag(r.cuisine)} ${esc(r.cuisine)}${r.ad?" · "+esc(r.ad):""}</span><h3>${esc(r.nom)}</h3><p>${recoQ?"Correspond à ta recherche.":"Parce que tu aimes la cuisine "+esc(r.cuisine.toLowerCase())+"."}</p><a class="xa" target="_blank" rel="noopener" href="${r.lien}">Voir la fiche</a>${r.site?` <a class="xa" target="_blank" rel="noopener" href="${esc(su(r.site,"#"))}">Site</a>`:""}<button data-act="wish" data-i="${i}" ${w?'disabled style="opacity:.6"':""}>${w?"Dans ma liste":"À tester"}</button></div>`}).join("");
   $("view").innerHTML=h;
 }
+const CC=()=>{const L=(navigator.language||"fr").toLowerCase(),r=(L.split("-")[1]||"");return r?(r==="fr"?"fr,be,ch,lu,mc":r==="ca"?"ca,fr":r):(L.startsWith("fr")?"fr,be,ch,lu,ca,mc":"")};
+const GRP={asiatique:["Chinoise","Japonaise","Coréenne","Thaïlandaise","Vietnamienne"],asie:["Chinoise","Japonaise","Coréenne","Thaïlandaise","Vietnamienne"],oriental:["Libanaise","Turque","Marocaine"],orientale:["Libanaise","Turque","Marocaine"],maghrebin:["Marocaine"],pho:["Vietnamienne"],tapas:["Espagnole"],pizzeria:["Pizza"],hamburger:["Burger"],sushis:["Sushi"],thai:["Thaïlandaise"],turc:["Turque"],grec:["Grecque"],chinois:["Chinoise"],japonais:["Japonaise"]};
+const FILL=new Set("resto restos restaurant restaurants a à de du des dans pres près proche autour meilleur meilleurs bon bons en le la les un une pour sur au aux et cherche trouve moi me ou où je veux manger".split(" "));
+function parseQ(q){
+  const toks=q.trim().split(/\s+/).filter(Boolean),found=[],rest=[];
+  const cu=CUIS.filter(c=>c[2]);
+  toks.forEach(w=>{
+    const n=norm(w).replace(/[^a-z]/g,"");if(!n){rest.push(w);return}
+    if(FILL.has(n)||FILL.has(w.toLowerCase())||/^\d+(e|er|eme)$/.test(norm(w)))return;
+    let hit=GRP[n]?GRP[n].map(x=>cu.find(c=>c[0]===x)).filter(Boolean):null;
+    if(!hit){const m=cu.find(c=>{const nm=norm(c[0]).replace(/[^a-z]/g,""),st=nm.replace(/e$/,"").replace(/nn$/,"n");return n===nm||n===st||(n.length>=4&&st.length>=4&&(n.startsWith(st)||st.startsWith(n)))});if(m)hit=[m]}
+    if(hit)hit.forEach(c=>{if(!found.includes(c))found.push(c)});else rest.push(w);
+  });
+  return{c:found.slice(0,8),city:rest.join(" ").replace(/\s+,/g,",").trim()};
+}
 async function getReco(){
-  const city=$("city").value.trim();if(!city)return $("city").focus();
-  lsSet("cr-city",city);recoState="loading";recoErr="";reco=[];renderReco();
+  const raw=$("city").value.trim();if(!raw)return $("city").focus();
+  lsSet("cr-q",raw);const ps=parseQ(raw);
+  const city=ps.city||(ps.c.length?(lsGet("cr-city")||""):raw);
+  if(!city){recoErr="Ajoute une ville à ta recherche, par exemple « "+raw+" Paris ».";recoState="done";reco=[];recoQ=0;return renderReco()}
+  lsSet("cr-city",city);recoState="loading";recoErr="";reco=[];recoQ=ps.c.length?1:0;renderReco();
   try{
-    const sc={};live().filter(x=>!x.todo).forEach(x=>{const c=CUIS.find(c=>c[0]===x.cuisine&&c[2]);if(c)sc[c[0]]=(sc[c[0]]||0)+(x.note||6)});
-    const tops=Object.entries(sc).sort((a,b)=>b[1]-a[1]).slice(0,3).map(e=>CUIS.find(c=>c[0]===e[0]));
-    if(!tops.length)throw new Error("Ajoute d’abord quelques restos avec une cuisine.");
-    const r=await api("reco",{city,c:tops.map(c=>[c[0],c[2]])});
+    let tops=ps.c;
+    if(!tops.length){
+      const sc={};live().filter(x=>!x.todo).forEach(x=>{const c=CUIS.find(c=>c[0]===x.cuisine&&c[2]);if(c)sc[c[0]]=(sc[c[0]]||0)+(x.note||6)});
+      tops=Object.entries(sc).sort((a,b)=>b[1]-a[1]).slice(0,3).map(e=>CUIS.find(c=>c[0]===e[0]));
+      if(!tops.length)throw new Error("Ajoute d’abord quelques restos avec une cuisine, ou cherche par exemple « ramen "+city+" ».")}
+    const r=await api("reco",{city,cc:CC(),c:tops.map(c=>[c[0],c[2]])});
     const seen=new Set(live().filter(x=>!x.todo).map(x=>x.nom.toLowerCase()));
-    tops.forEach(c=>(r.items||[]).filter(x=>x.cuisine===c[0]&&!seen.has(x.nom.toLowerCase())).slice(0,3).forEach(x=>{x.lien=mapsLink(x.nom,(x.ad+" "+city).trim());reco.push(x)}));
-    if(!reco.length)throw new Error("Rien trouvé dans cette ville.");
+    if(ps.c.length){const by=tops.map(c=>(r.items||[]).filter(x=>x.cuisine===c[0]&&!seen.has(x.nom.toLowerCase())));
+      for(let i=0;reco.length<12&&i<12;i++)by.forEach(l=>{if(l[i]&&reco.length<12)reco.push(l[i])});reco.forEach(x=>x.lien=mapsLink(x.nom,(x.ad+" "+city).trim()))}
+    else tops.forEach(c=>(r.items||[]).filter(x=>x.cuisine===c[0]&&!seen.has(x.nom.toLowerCase())).slice(0,3).forEach(x=>{x.lien=mapsLink(x.nom,(x.ad+" "+city).trim());reco.push(x)}));
+    if(!reco.length)throw new Error("Rien trouvé pour cette recherche.");
   }catch(e){recoErr=e.message&&!/fetch|JSON|Network|Load failed/i.test(e.message)?e.message:"Connexion impossible. Réessaie."}
   recoState="done";if(tab==="spots"&&listMode==="reco")renderReco();
 }
@@ -977,7 +999,7 @@ XH.shalb=()=>openRec("alb:"+albView);
 const ntText=n=>({req:`<b>@${esc(n.u)}</b> veut devenir ton ami`,acc:`<b>@${esc(n.u)}</b> a accepté ta demande`,fol:`<b>@${esc(n.u)}</b> s’est abonné à ton profil`,rx:`<b>@${esc(n.u)}</b> a réagi ${esc(n.e||"")} à <b>${esc(n.m||"ton resto")}</b>`,cm:`<b>@${esc(n.u)}</b> a commenté <b>${esc(n.m||"ton resto")}</b> : « ${esc(n.x||"")} »`}[n.ty]||"Nouvelle activité");
 async function openNt(){
   if(!tok){toast("Connecte-toi dans l’onglet Amis pour voir tes notifications.");return}
-  $("ntB").innerHTML='<div class="sk" style="height:60px"></div>';$("dNt").showModal();
+  $("ntB").innerHTML='<div class="sk" style="height:60px"></div>';$("dNt").showModal();paintPush();
   try{const r=await api("nt"),seenT=+lsGet("cr-feedseen")||0;
     const nf=feed.filter(x=>x.maj>seenT).slice(0,8);
     const L=[...r.list.map(n=>({t:n.t,h:ntText(n),nw:n.t>r.nr})),...nf.map(x=>({t:x.maj,h:`<b>@${esc(x.u)}</b> a ajouté <b>${esc(x.nom)}</b>${x.note?" · ★ "+fmt(x.note):""}`,f:feed.indexOf(x),nw:true}))].sort((a,b)=>b.t-a.t).slice(0,40);
@@ -985,7 +1007,34 @@ async function openNt(){
     await api("ntread").catch(()=>{});lsSet("cr-feedseen",String(Date.now()));pu.nt=0;updBadge();
   }catch(e){$("ntB").innerHTML=`<div class="note">${esc(e.message)}</div>`}
 }
-$("bell").onclick=openNt;$("ntX").onclick=()=>$("dNt").close();
+
+/* ===== Notifications push ===== */
+const VAPID="BPovVXPxhIZ_WX6Z4JyG1cZ_Pzqv1gvIZ5CPfkvz_tGk7PB9WSirQnU5eAvHlI71uWPzZqsq-OIcsxYoFUdKm7o";
+const u8=b=>{const p="=".repeat((4-b.length%4)%4),r=atob((b+p).replace(/-/g,"+").replace(/_/g,"/"));return Uint8Array.from(r,c=>c.charCodeAt(0))};
+const pushOK=()=>"serviceWorker" in navigator&&"PushManager" in window&&"Notification" in window;
+async function pushSub(){try{const reg=await navigator.serviceWorker.ready;return await reg.pushManager.getSubscription()}catch(e){return null}}
+async function paintPush(){
+  const el=$("ntPush");if(!el)return;
+  if(!pushOK()){el.innerHTML="Ajoute l’app à l’écran d’accueil pour activer les notifications.";return}
+  const sub=await pushSub(),on=sub&&Notification.permission==="granted";
+  el.innerHTML=`<b style="display:block;color:var(--ink);margin-bottom:4px">Notifications sur ce téléphone</b>Reçois les demandes d’amis, réactions et commentaires même quand l’app est fermée.<div class="acts" style="margin-top:10px"><button class="${on?"":"pri"}" data-pt="1">${on?"Désactiver les notifications":"Activer les notifications"}</button></div>`;
+}
+async function pushToggle(){
+  try{
+    const cur=await pushSub();
+    if(cur){await api("pdel",{endpoint:cur.endpoint}).catch(()=>{});await cur.unsubscribe();toast("Notifications désactivées.");return paintPush()}
+    const perm=await Notification.requestPermission();
+    if(perm!=="granted"){toast("Autorisation refusée : active-la dans les réglages.");return paintPush()}
+    const reg=await navigator.serviceWorker.ready;
+    const sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:u8(VAPID)});
+    const r=await api("psub",{sub:sub.toJSON()});
+    toast(r&&r.srv===false?"Serveur pas encore configuré pour les notifications.":"Notifications activées.");
+  }catch(e){toast(e.message||"Impossible d’activer les notifications.")}
+  paintPush();
+}
+$("ntPush").addEventListener("click",e=>{if(e.target.closest&&e.target.closest('[data-pt="1"]'))pushToggle()});
+setTimeout(async()=>{if(tok&&pushOK()&&Notification.permission==="granted"){const s=await pushSub();if(s)api("psub",{sub:s.toJSON()}).catch(()=>{})}},5000);
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target&&e.target.id==="city"){e.preventDefault();getReco()}});$("bell").onclick=openNt;$("ntX").onclick=()=>$("dNt").close();
 
 /* ---- avis des amis sur une fiche ---- */
 async function loadFrv(x){

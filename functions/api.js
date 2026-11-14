@@ -117,13 +117,17 @@ const jf = async (u, o = {}, ms = 5000) => {
 };
 const MIR = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter", "https://overpass.private.coffee/api/interpreter"];
 const rich = (t) => ["website", "contact:website", "opening_hours", "phone", "contact:phone", "wheelchair", "addr:street"].filter((k) => t[k]).length;
-async function reco(st, city, c, ll, rad) {
+async function reco(st, city, c, ll, rad, cc) {
   let lat, lon;
   if (ll) ({ lat, lon } = ll);
   else {
-    const g = await jf("https://nominatim.openstreetmap.org/search?format=json&limit=1&q=" + encodeURIComponent(city), {}, 3000).catch(() => null);
-    if (!g || !g[0]) return J({ e: "Ville introuvable." }, 404);
-    ({ lat, lon } = g[0]);
+    const base = "https://nominatim.openstreetmap.org/search?format=json&limit=5&addressdetails=1&accept-language=fr&q=" + encodeURIComponent(city);
+    const pick = (r) => r && (r.find((x) => ["city", "town", "village", "municipality", "suburb", "borough", "county", "state"].includes(x.addresstype)) || r[0]);
+    let g = null;
+    if (cc && !city.includes(",")) g = pick(await jf(base + "&countrycodes=" + cc, {}, 3000).catch(() => null));
+    if (!g) g = pick(await jf(base, {}, 3000).catch(() => null));
+    if (!g) return J({ e: "Ville introuvable." }, 404);
+    ({ lat, lon } = g);
   }
   const R = Math.min(Math.max(+rad || 4000, 300), 8000);
   const key = "rc/" + (+lat).toFixed(3) + "_" + (+lon).toFixed(3) + "/" + R + "/" + c.map((x) => x[0]).join("-");
@@ -162,6 +166,49 @@ async function reco(st, city, c, ll, rad) {
   return J({ items: out });
 }
 
+
+/* ---------- Notifications push (Web Push, VAPID + chiffrement aes128gcm) ---------- */
+const VAPID_PUB = "BPovVXPxhIZ_WX6Z4JyG1cZ_Pzqv1gvIZ5CPfkvz_tGk7PB9WSirQnU5eAvHlI71uWPzZqsq-OIcsxYoFUdKm7o";
+const b64u = (b) => btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+const unb64u = (s) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((s.length + 3) % 4)), (c) => c.charCodeAt(0));
+const cat = (...a) => { const o = new Uint8Array(a.reduce((n, x) => n + x.length, 0)); let i = 0; for (const x of a) { o.set(x, i); i += x.length; } return o; };
+const hk = async (salt, ikm, info, len) => {
+  const k = await crypto.subtle.importKey("raw", ikm, "HKDF", false, ["deriveBits"]);
+  return new Uint8Array(await crypto.subtle.deriveBits({ name: "HKDF", hash: "SHA-256", salt, info }, k, len * 8));
+};
+async function pushOne(sub, payload) {
+  const enc = new TextEncoder();
+  const uaPub = unb64u(sub.keys.p256dh), auth = unb64u(sub.keys.auth);
+  const eph = await crypto.subtle.generateKey({ name: "ECDH", namedCurve: "P-256" }, true, ["deriveBits"]);
+  const asPub = new Uint8Array(await crypto.subtle.exportKey("raw", eph.publicKey));
+  const uaKey = await crypto.subtle.importKey("raw", uaPub, { name: "ECDH", namedCurve: "P-256" }, false, []);
+  const ecdh = new Uint8Array(await crypto.subtle.deriveBits({ name: "ECDH", public: uaKey }, eph.privateKey, 256));
+  const ikm = await hk(auth, ecdh, cat(enc.encode("WebPush: info\0"), uaPub, asPub), 32);
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const cek = await hk(salt, ikm, enc.encode("Content-Encoding: aes128gcm\0"), 16);
+  const nonce = await hk(salt, ikm, enc.encode("Content-Encoding: nonce\0"), 12);
+  const ak = await crypto.subtle.importKey("raw", cek, "AES-GCM", false, ["encrypt"]);
+  const ct = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv: nonce }, ak, cat(enc.encode(payload), new Uint8Array([2]))));
+  const body = cat(salt, new Uint8Array([0, 0, 16, 0, 65]), asPub, ct);
+  const pub = unb64u(VAPID_PUB);
+  const jwk = { kty: "EC", crv: "P-256", d: ENV.VAPID_PRIVATE, x: b64u(pub.slice(1, 33)), y: b64u(pub.slice(33, 65)) };
+  const sk = await crypto.subtle.importKey("jwk", jwk, { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]);
+  const h = b64u(enc.encode(JSON.stringify({ typ: "JWT", alg: "ES256" }))) + "." + b64u(enc.encode(JSON.stringify({ aud: new URL(sub.endpoint).origin, exp: Math.floor(Date.now() / 1000) + 43200, sub: ENV.VAPID_SUBJECT || "mailto:contact@crumb.app" })));
+  const sig = b64u(await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, sk, enc.encode(h)));
+  const r = await fetch(sub.endpoint, { method: "POST", headers: { "content-encoding": "aes128gcm", "content-type": "application/octet-stream", ttl: "86400", urgency: "normal", authorization: `vapid t=${h}.${sig}, k=${VAPID_PUB}` }, body, signal: AbortSignal.timeout(4000) });
+  return r.status;
+}
+async function pushTo(st, to, o) {
+  if (!ENV.VAPID_PRIVATE) return;
+  const k = "ps/" + to, subs = (await st.get(k, { type: "json" }).catch(() => null)) || [];
+  if (!subs.length) return;
+  const T = { req: ["Nouvelle demande d’ami", `@${o.u} veut devenir ton ami`], acc: ["Demande acceptée", `@${o.u} a accepté ta demande`], fol: ["Nouvel abonné", `@${o.u} s’est abonné à ton profil`], rx: ["Nouvelle réaction", `@${o.u} a réagi ${o.e || ""} à ${o.m || "ton resto"}`], cm: ["Nouveau commentaire", `@${o.u} : ${o.x || ""}`] }[o.ty] || ["Crumb", "Nouvelle activité"];
+  const payload = JSON.stringify({ title: T[0], body: T[1], tag: o.ty });
+  const keep = [];
+  await Promise.all(subs.map(async (s) => { try { const c = await pushOne(s, payload); if (c !== 404 && c !== 410) keep.push(s); } catch { keep.push(s); } }));
+  if (keep.length !== subs.length) await st.setJSON(k, keep).catch(() => {});
+}
+
 const handle = async (req) => {
   if (req.method !== "POST") return J({ e: "bad" }, 405);
   const raw = await req.text();
@@ -184,10 +231,10 @@ const handle = async (req) => {
 
   if (a === "reco") {
     if (await limit("reco:" + ip, 40, 60000)) return TOO();
-    const ok = Array.isArray(c) && c.length > 0 && c.length <= 3 && c.every((x) => Array.isArray(x) && /^[a-z|_-]{2,40}$/.test(x[1]) && typeof x[0] === "string" && x[0].length < 30);
+    const ok = Array.isArray(c) && c.length > 0 && c.length <= 8 && c.every((x) => Array.isArray(x) && /^[a-z|_-]{2,160}$/.test(x[1]) && typeof x[0] === "string" && x[0].length < 30);
     const ll = typeof lat === "number" && typeof lon === "number" && Math.abs(lat) <= 90 && Math.abs(lon) <= 180 ? { lat, lon } : null;
     if (!ok || (!ll && (typeof city !== "string" || !city.trim() || city.length > 80))) return J({ e: "bad" }, 400);
-    return reco(st, String(city || "").trim(), c, ll, rad);
+    return reco(st, String(city || "").trim(), c, ll, rad, typeof B.cc === "string" && /^[a-z,]{2,40}$/.test(B.cc) ? B.cc : "");
   }
 
   const key = await secret(st);
@@ -224,7 +271,21 @@ const handle = async (req) => {
     const k = "nt/" + to, l = (await st.get(k, { type: "json" })) || [];
     l.unshift({ id: rid(), t: Date.now(), ...o });
     await st.setJSON(k, l.slice(0, 60));
+    await pushTo(st, to, o).catch(() => {});
   };
+  if (a === "psub") {
+    const sb = B.sub;
+    if (!sb || typeof sb.endpoint !== "string" || !/^https:\/\//.test(sb.endpoint) || sb.endpoint.length > 600 || !sb.keys || typeof sb.keys.p256dh !== "string" || typeof sb.keys.auth !== "string") return J({ e: "bad" }, 400);
+    const k = "ps/" + me, l = ((await st.get(k, { type: "json" }).catch(() => null)) || []).filter((x) => x.endpoint !== sb.endpoint);
+    l.unshift({ endpoint: sb.endpoint, keys: { p256dh: sb.keys.p256dh, auth: sb.keys.auth } });
+    await st.setJSON(k, l.slice(0, 5));
+    return J({ ok: 1, srv: !!ENV.VAPID_PRIVATE });
+  }
+  if (a === "pdel") {
+    const k = "ps/" + me, ep = B.endpoint;
+    await st.setJSON(k, ((await st.get(k, { type: "json" }).catch(() => null)) || []).filter((x) => x.endpoint !== ep));
+    return J({ ok: 1 });
+  }
   const ibGet = async (n) => (await st.get("ib/" + n, { type: "json" })) || { t: {} };
   const blk = async (n) => (self.bl || []).includes(n) || (((await st.get("u/" + n, { type: "json" })) || {}).bl || []).includes(me);
   const canSee = async (n) => n === me || (!(await blk(n)) && (self.fr.includes(n) || (await pubs()).includes(n)));
@@ -554,7 +615,7 @@ const handle = async (req) => {
       if (Array.isArray(l) && l.some((x) => x.u === me)) await st.setJSON(k, l.filter((x) => x.u !== me));
     }
     for (const k of await keys("c/")) if (k.split("/")[1].split("__").includes(me)) await st.delete(k).catch(() => {});
-    for (const k of ["u/", "d/", "i/", "p/", "rx/", "cm/", "nt/", "ib/"]) await st.delete(k + me).catch(() => {});
+    for (const k of ["u/", "d/", "i/", "p/", "rx/", "cm/", "nt/", "ib/", "ps/"]) await st.delete(k + me).catch(() => {});
     return J({ ok: 1 });
   }
   return J({ e: "bad" }, 400);
