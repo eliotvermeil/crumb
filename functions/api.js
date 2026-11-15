@@ -354,7 +354,7 @@ const handle = async (req) => {
   if (a === "pset") {
     const ok = (x, mx) => x === undefined || x === "" || (typeof x === "string" && x.startsWith("data:image/") && x.length < mx);
     if (!prof || !ok(prof.avatar, 150000) || !ok(prof.banner, 400000) || !Array.isArray(prof.favs || [])) return J({ e: "bad" }, 400);
-    await st.setJSON("p/" + me, { avatar: prof.avatar || "", banner: prof.banner || "", favs: (prof.favs || []).slice(0, 4).map((x) => String(x).slice(0, 40)), maj: +prof.maj || Date.now() });
+    await st.setJSON("p/" + me, { avatar: prof.avatar || "", banner: prof.banner || "", favs: (prof.favs || []).slice(0, 4).map((x) => String(x).slice(0, 40)), bio: typeof prof.bio === "string" ? prof.bio.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "").slice(0, 160) : "", maj: +prof.maj || Date.now() });
     return J({ ok: 1 });
   }
 
