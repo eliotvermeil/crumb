@@ -450,7 +450,8 @@ const handle = async (req) => {
     const o = n === me ? self : await st.get("u/" + n, { type: "json" });
     if (!o) return J({ e: "Introuvable." }, 404);
     const bad = new Set(self.bl || []);
-    return J({ fo: (o.fo || []).filter((x) => !bad.has(x)).slice(0, 200), fl: (await flGet(n)).filter((x) => !bad.has(x) && x !== n).slice(0, 500) });
+    const fr = o.fr || [], u2 = (a, b) => [...new Set([...a, ...b])].filter((x) => !bad.has(x) && x !== n);
+    return J({ fo: u2(o.fo || [], fr).slice(0, 500), fl: u2(await flGet(n), fr).slice(0, 1000) });
   }
   if (a === "fmap") {
     const P = await pubs();
