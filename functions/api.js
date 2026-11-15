@@ -300,6 +300,17 @@ const handle = async (req) => {
   }
   const ibGet = async (n) => (await st.get("ib/" + n, { type: "json" })) || { t: {} };
   const blk = async (n) => (self.bl || []).includes(n) || (((await st.get("u/" + n, { type: "json" })) || {}).bl || []).includes(me);
+  const flGet = async (n) => {
+    let l = await st.get("fl/" + n, { type: "json" });
+    if (!Array.isArray(l)) {
+      const ks = ((await st.list({ prefix: "u/" })).blobs || []).map((b) => b.key).slice(0, 300);
+      const us = await Promise.all(ks.map(async (k) => [k.slice(2), await st.get(k, { type: "json" })]));
+      l = us.filter(([, o]) => o && Array.isArray(o.fo) && o.fo.includes(n)).map(([k]) => k);
+      await st.setJSON("fl/" + n, l);
+    }
+    return l;
+  };
+  const flSet = async (n, who, on) => { const l = await flGet(n); const w = on ? [...new Set([...l, who])].slice(-2000) : l.filter((x) => x !== who); await st.setJSON("fl/" + n, w); };
   const canSee = async (n) => n === me || (!(await blk(n)) && (self.fr.includes(n) || (await pubs()).includes(n)));
   const kill = async (n) => {
     self.fr = self.fr.filter((x) => x !== n); self.fo = (self.fo || []).filter((x) => x !== n); self.rq = self.rq.filter((x) => x !== n);
@@ -309,6 +320,7 @@ const handle = async (req) => {
     const ib = await ibGet(n); delete ib.t[me]; await st.setJSON("ib/" + n, ib);
     const im = await ibGet(me); delete im.t[n]; await st.setJSON("ib/" + me, im);
     await saveU(me, self);
+    await flSet(n, me, false).catch(() => {}); await flSet(me, n, false).catch(() => {});
   };
   const accept = async (n, o) => {
     self.rq = self.rq.filter((x) => x !== n);
@@ -421,15 +433,24 @@ const handle = async (req) => {
   }
   if (a === "follow" || a === "unfollow") {
     const n = nm(u);
-    if (a === "unfollow") { self.fo = self.fo.filter((x) => x !== n); await saveU(me, self); return J({ ok: 1 }); }
+    if (a === "unfollow") { self.fo = self.fo.filter((x) => x !== n); await saveU(me, self); await flSet(n, me, false).catch(() => {}); return J({ ok: 1 }); }
     if (!(await pubs()).includes(n) || n === me || (await blk(n))) return J({ e: "Ce profil n’est pas public." }, 404);
-    if (!self.fo.includes(n)) { self.fo = [...self.fo, n].slice(-100); await saveU(me, self); await notify(n, { ty: "fol", u: me }); }
+    if (!self.fo.includes(n)) { self.fo = [...self.fo, n].slice(-100); await saveU(me, self); await flSet(n, me, true).catch(() => {}); await notify(n, { ty: "fol", u: me }); }
     return J({ ok: 1 });
   }
   if (a === "view") {
     const n = nm(u);
     if (n === me || !(await canSee(n))) return J({ e: "Ce profil n’est pas accessible." }, 403);
-    return J({ items: done(await data(n)), prof: await st.get("p/" + n, { type: "json" }), friend: self.fr.includes(n), following: self.fo.includes(n) });
+    const raw = await data(n), fr = self.fr.includes(n);
+    return J({ items: done(raw), albums: fr ? raw.filter((x) => x.album && !x.del).map((x) => ({ id: x.id, nom: x.nom, emoji: x.emoji || "" })) : [], prof: await st.get("p/" + n, { type: "json" }), friend: fr, following: self.fo.includes(n) });
+  }
+  if (a === "rel") {
+    const n = nm(u);
+    if (!(await canSee(n))) return J({ e: "Ce profil n’est pas accessible." }, 403);
+    const o = n === me ? self : await st.get("u/" + n, { type: "json" });
+    if (!o) return J({ e: "Introuvable." }, 404);
+    const bad = new Set(self.bl || []);
+    return J({ fo: (o.fo || []).filter((x) => !bad.has(x)).slice(0, 200), fl: (await flGet(n)).filter((x) => !bad.has(x) && x !== n).slice(0, 500) });
   }
   if (a === "fmap") {
     const P = await pubs();
@@ -612,6 +633,10 @@ const handle = async (req) => {
       const f = (l) => (Array.isArray(l) ? l.filter((x) => x !== me) : l);
       if ([o.fr, o.fo, o.rq].some((l) => Array.isArray(l) && l.includes(me))) { o.fr = f(o.fr); o.fo = f(o.fo); o.rq = f(o.rq); await st.setJSON(k, o); }
     }
+    for (const k of await keys("fl/")) {
+      const l = await st.get(k, { type: "json" });
+      if (Array.isArray(l) && l.includes(me)) await st.setJSON(k, l.filter((x) => x !== me));
+    }
     for (const k of await keys("cm/")) {
       const mp = await st.get(k, { type: "json" }); let ch = false;
       for (const id of Object.keys(mp || {})) { const l = mp[id].filter((c) => c.u !== me); if (l.length !== mp[id].length) { ch = true; if (l.length) mp[id] = l; else delete mp[id]; } }
@@ -627,7 +652,7 @@ const handle = async (req) => {
       if (Array.isArray(l) && l.some((x) => x.u === me)) await st.setJSON(k, l.filter((x) => x.u !== me));
     }
     for (const k of await keys("c/")) if (k.split("/")[1].split("__").includes(me)) await st.delete(k).catch(() => {});
-    for (const k of ["u/", "d/", "i/", "p/", "rx/", "cm/", "nt/", "ib/", "ps/"]) await st.delete(k + me).catch(() => {});
+    for (const k of ["u/", "d/", "i/", "p/", "rx/", "cm/", "nt/", "ib/", "ps/", "fl/"]) await st.delete(k + me).catch(() => {});
     return J({ ok: 1 });
   }
   return J({ e: "bad" }, 400);
