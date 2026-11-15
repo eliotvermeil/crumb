@@ -1028,7 +1028,7 @@ async function pushToggle(){
     const reg=await navigator.serviceWorker.ready;
     const sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:u8(VAPID)});
     const r=await api("psub",{sub:sub.toJSON()});
-    toast(r&&r.srv===false?"Serveur pas encore configuré pour les notifications.":"Notifications activées.");
+    toast(r&&r.srv===false?"Serveur pas encore configuré. Variables vues : "+(r.env||"?"):"Notifications activées.");
   }catch(e){toast(e.message||"Impossible d’activer les notifications.")}
   paintPush();
 }
@@ -1405,7 +1405,7 @@ function paintSet(){
     h+=row("Mot de passe","",`<button class="ch" data-x="chpw2">Modifier</button>`);
     h+=row("Autres appareils","Les déconnecter","<button class=\"ch\" data-x=\"logall2\">Déconnecter</button>");
   }else h+=row("Pas de compte","Tes spots sont sur cet appareil","<button class=\"ch\" data-x=\"goAmis\">Créer un compte</button>");
-  if(tok&&blkL.length)h+=`<div class="setg">Utilisateurs bloqués</div>`+blkL.map(u=>row("@"+esc(u),"",`<button class="ch" data-x="unblk" data-u="${esc(u)}">Débloquer</button>`)).join("");
+  if(tok)h+=`<div class="setg">Utilisateurs bloqués</div>`+(blkL.length?blkL.map(u=>row("@"+esc(u),"",`<button class="ch" data-x="unblk" data-u="${esc(u)}">Débloquer</button>`)).join(""):row("Personne n’est bloqué","",""))+`<div class="row" style="margin-top:8px"><input id="unbN" placeholder="@pseudo à débloquer" autocapitalize="off" autocorrect="off"><button class="ch" data-x="unblkN">Débloquer</button></div>`;
   h+=`<div class="setg">Langue</div><div class="cg" style="margin:8px 0">${[["fr","Français"],["en","English"]].map(([v,t])=>`<button class="ch ${I18N.get()===v?"on":""}" data-x="lang" data-v="${v}" data-nt="1">${t}</button>`).join("")}</div><div class="setg">Apparence</div><div class="cg" style="margin:8px 0">${THEMES.map(([v,t])=>`<button class="ch ${themePref()===v?"on":""}" data-x="theme" data-v="${v}">${t}</button>`).join("")}</div>`;
   h+=`<div class="setg">Mes données</div>`+row("Sauvegarde","Fichier de tes spots","<button class=\"ch\" data-x=\"bkexp\">Exporter</button>")+row("Restaurer","Depuis une sauvegarde","<button class=\"ch\" data-x=\"bkimp\">Importer</button>");
   if(tok)h+=row("Toutes mes données en ligne","Compte, profil, relations, commentaires","<button class=\"ch\" data-x=\"srvexp\">Télécharger</button>");
@@ -1438,6 +1438,7 @@ $("rpX").onclick=()=>$("dRp").close();
 $("rpS").onclick=async()=>{try{await api("report",{u:rp.u,id:rp.id,nom:rp.nom,v:rp.w,m:$("rpM").value});$("dRp").close();toast("Signalement envoyé. Merci.")}catch(e){toast(e.message)}};
 XH.blk=async()=>{if(!viewing)return;const u=viewing.u;try{await api("block",{u});viewing=null;tab="amis";await loadSoc();render();toastAct("@"+u+" bloqué","Annuler",async()=>{try{await api("unblock",{u});loadSoc()}catch(e){}})}catch(e){toast(e.message)}};
 XH.unfr=async()=>{if(!viewing)return;const u=viewing.u;try{await api("unfriend",{u});viewing=null;tab="amis";await loadSoc();render();toast("@"+u+" retiré de tes amis")}catch(e){toast(e.message)}};
+XH.unblkN=async()=>{const u=($("unbN").value||"").trim().replace(/^@/,"").toLowerCase();if(!u)return $("unbN").focus();try{await api("unblock",{u});blkL=blkL.filter(x=>x!==u);toast("@"+u+" débloqué.");paintSet()}catch(e){toast(e.message)}};
 XH.unblk=async b=>{try{await api("unblock",{u:b.dataset.u});blkL=blkL.filter(x=>x!==b.dataset.u);paintSet()}catch(e){toast(e.message)}};
 
 /* ---- itinéraire multi-adresses ---- */

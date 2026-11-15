@@ -182,6 +182,7 @@ async function reco(st, city, c, ll, rad, cc) {
 const VAPID_PUB = "BPovVXPxhIZ_WX6Z4JyG1cZ_Pzqv1gvIZ5CPfkvz_tGk7PB9WSirQnU5eAvHlI71uWPzZqsq-OIcsxYoFUdKm7o";
 const b64u = (b) => btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 const unb64u = (s) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((s.length + 3) % 4)), (c) => c.charCodeAt(0));
+const vpk = () => { const k = ENV.VAPID_PRIVATE !== undefined ? "VAPID_PRIVATE" : Object.keys(ENV).find((x) => /vapid/i.test(x) && /private|priv|key|secret/i.test(x) && typeof ENV[x] === "string"); return k ? String(ENV[k]).trim().replace(/^["']|["']$/g, "") : ""; };
 const cat = (...a) => { const o = new Uint8Array(a.reduce((n, x) => n + x.length, 0)); let i = 0; for (const x of a) { o.set(x, i); i += x.length; } return o; };
 const hk = async (salt, ikm, info, len) => {
   const k = await crypto.subtle.importKey("raw", ikm, "HKDF", false, ["deriveBits"]);
@@ -202,7 +203,7 @@ async function pushOne(sub, payload) {
   const ct = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv: nonce }, ak, cat(enc.encode(payload), new Uint8Array([2]))));
   const body = cat(salt, new Uint8Array([0, 0, 16, 0, 65]), asPub, ct);
   const pub = unb64u(VAPID_PUB);
-  const jwk = { kty: "EC", crv: "P-256", d: ENV.VAPID_PRIVATE, x: b64u(pub.slice(1, 33)), y: b64u(pub.slice(33, 65)) };
+  const jwk = { kty: "EC", crv: "P-256", d: vpk(), x: b64u(pub.slice(1, 33)), y: b64u(pub.slice(33, 65)) };
   const sk = await crypto.subtle.importKey("jwk", jwk, { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]);
   const h = b64u(enc.encode(JSON.stringify({ typ: "JWT", alg: "ES256" }))) + "." + b64u(enc.encode(JSON.stringify({ aud: new URL(sub.endpoint).origin, exp: Math.floor(Date.now() / 1000) + 43200, sub: ENV.VAPID_SUBJECT || "mailto:contact@crumb.app" })));
   const sig = b64u(await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, sk, enc.encode(h)));
@@ -210,7 +211,7 @@ async function pushOne(sub, payload) {
   return r.status;
 }
 async function pushTo(st, to, o) {
-  if (!ENV.VAPID_PRIVATE) return;
+  if (!vpk()) return;
   const k = "ps/" + to, subs = (await st.get(k, { type: "json" }).catch(() => null)) || [];
   if (!subs.length) return;
   const T = { req: ["Nouvelle demande d’ami", `@${o.u} veut devenir ton ami`], acc: ["Demande acceptée", `@${o.u} a accepté ta demande`], fol: ["Nouvel abonné", `@${o.u} s’est abonné à ton profil`], rx: ["Nouvelle réaction", `@${o.u} a réagi ${o.e || ""} à ${o.m || "ton resto"}`], cm: ["Nouveau commentaire", `@${o.u} : ${o.x || ""}`] }[o.ty] || ["Crumb", "Nouvelle activité"];
@@ -290,7 +291,7 @@ const handle = async (req) => {
     const k = "ps/" + me, l = ((await st.get(k, { type: "json" }).catch(() => null)) || []).filter((x) => x.endpoint !== sb.endpoint);
     l.unshift({ endpoint: sb.endpoint, keys: { p256dh: sb.keys.p256dh, auth: sb.keys.auth } });
     await st.setJSON(k, l.slice(0, 5));
-    return J({ ok: 1, srv: !!ENV.VAPID_PRIVATE });
+    return J({ ok: 1, srv: !!vpk(), env: Object.keys(ENV).join(", ") });
   }
   if (a === "pdel") {
     const k = "ps/" + me, ep = B.endpoint;
