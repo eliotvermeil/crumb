@@ -23,3 +23,34 @@ Remplace les fichiers dans GitHub : Cloudflare republie en 1 minute environ.
 ## Limites du plan gratuit
 - Workers : 100 000 requêtes par jour, 10 ms de CPU par requête.
 - D1 : 5 Go, 5 millions de lectures et 100 000 écritures par jour.
+
+---
+
+## Réglages à faire une seule fois (nouveautés)
+
+**1. Voir les signalements (administrateur)**
+Dans Cloudflare → ton projet `crumb` → Settings → Variables and Secrets → Add, type **Text** :
+`ADMIN` = ton pseudo Crumb (en minuscules, par exemple `eliot`).
+Après le déploiement, un bouton « Signalements » apparaît dans tes Réglages dans l'app.
+
+**2. Notifications push**
+Secret `VAPID_PRIVATE` (type Secret). Voir le message où je te l'ai donné.
+
+**3. Sauvegarde de la base**
+La base D1 garde automatiquement 30 jours d'historique (« Time Travel »).
+Pour revenir en arrière : Cloudflare → Storage & Databases → D1 → `crumb-db` → onglet « Time Travel » (ou `npx wrangler d1 time-travel restore crumb-db --timestamp=...`).
+
+**4. Nom de domaine**
+Cloudflare → ton projet `crumb` → Settings → Domains & Routes → Add → Custom domain.
+Si le domaine est acheté chez Cloudflare (Registrar), c'est automatique. Sinon, suis les instructions DNS affichées.
+
+**5. Dépôt GitHub privé**
+GitHub → ton dépôt `crumb` → Settings → tout en bas « Danger Zone » → Change visibility → Make private.
+Cloudflare garde l'accès au dépôt privé (la connexion GitHub reste valable).
+
+## Ce qui a été ajouté
+- Codes de secours + « Mot de passe oublié ? » (sans e-mail)
+- Bilan de l'année partageable en image
+- Liens de partage de profil (`/u/pseudo`) avec invitation automatique (demande d'ami envoyée à l'inscription)
+- Notifications push quand un ami ajoute un resto (max. 1 toutes les 6 h par ami, désactivable dans les Réglages)
+- Jusqu'à 3 photos par resto, recadrage des photos, bio, albums visibles par les amis

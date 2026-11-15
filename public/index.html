@@ -415,7 +415,7 @@ dialog::backdrop{background:rgba(10,10,9,.42);backdrop-filter:blur(3px);-webkit-
   <h2 id="fT">Nouveau spot</h2><div class="ser">Où as-tu mangé ?</div>
   <label>Nom du resto</label><input id="fN" placeholder="Tape le nom pour le retrouver…" autocomplete="off">
   <div class="sg" id="sug" style="display:none"></div>
-  <label>Photo</label><div class="photo" id="fPh">+ Ajouter une photo</div><div class="row" style="margin-top:8px"><button type="button" class="ch" id="photoSuggest">Suggérer des photos</button><button type="button" class="ch" id="photoClear">Retirer la photo</button></div><div id="photoResults"></div><input type="file" id="fFile" accept="image/*" hidden>
+  <label>Photo</label><div class="photo" id="fPh">+ Ajouter une photo</div><div class="row" style="margin-top:8px"><button type="button" class="ch" id="photoSuggest">Suggérer des photos</button><button type="button" class="ch" id="photoClear">Retirer la photo</button></div><div class="cg" id="phxL" style="margin-top:8px"></div><button type="button" class="ch" id="phxAdd" style="margin-top:8px">+ Autre photo</button><input type="file" accept="image/*" id="fFile2" hidden><div id="photoResults"></div><input type="file" id="fFile" accept="image/*" hidden>
   <div class="row"><div><label>Ville / quartier</label><input id="fV" placeholder="Paris 11e"></div><div><label>Date</label><input id="fD" type="date"></div></div>
   <label>Cuisine</label><input id="fCs" placeholder="Chercher parmi +90 cuisines…" autocomplete="off"><div class="cg" id="cg" style="margin-top:8px"></div>
   <label>Ma note</label><div class="pick" id="pick"></div>
@@ -439,6 +439,11 @@ dialog::backdrop{background:rgba(10,10,9,.42);backdrop-filter:blur(3px);-webkit-
   <div class="acts"><button id="pRm">Retirer</button><button class="pri" id="pX">Fermer</button></div>
 </dialog>
 <dialog id="dBio"><div class="grab"></div><h2>Ma bio</h2><textarea id="bioT" maxlength="160" placeholder="Quelques mots sur toi et ta façon de manger…"></textarea><div class="bioc" id="bioC">0/160</div><div class="acts"><button class="pri" id="bioOk">Enregistrer</button><button id="bioNo">Annuler</button></div></dialog>
+<dialog id="dRc"><div class="grab"></div><h2>Codes de secours</h2><div class="note" id="rcI"></div><div id="rcP"><input id="rcO" type="password" autocomplete="current-password" placeholder="Ton mot de passe" style="margin-top:12px"><div class="note" id="rcE" style="color:#df554b"></div></div><div id="rcL" style="display:none"></div><div class="acts"><button class="pri" id="rcG">Générer</button><button id="rcC" style="display:none">Copier</button><button id="rcX">Fermer</button></div></dialog>
+<dialog id="dFg"><div class="grab"></div><h2>Mot de passe oublié</h2><div class="note">Entre ton pseudo, un de tes codes de secours et un nouveau mot de passe.</div><input id="fgU" autocapitalize="none" placeholder="Pseudo" style="margin-top:12px"><input id="fgC" autocapitalize="characters" autocomplete="off" placeholder="Code de secours (XXXX-XXXX-XXXX)" style="margin-top:8px"><input id="fgP" type="password" autocomplete="new-password" placeholder="Nouveau mot de passe (8 caractères min.)" style="margin-top:8px"><div class="note" id="fgE" style="color:#df554b"></div><div class="acts"><button class="pri" id="fgS">Réinitialiser</button><button id="fgX">Annuler</button></div></dialog>
+<dialog id="dAdm"><div class="grab"></div><h2>Signalements</h2><div id="adL"></div><div class="acts"><button id="adX">Fermer</button></div></dialog>
+<dialog id="dWr"><div class="grab"></div><h2>Mon bilan</h2><div class="ser" id="wrS"></div><canvas id="wrC" width="1080" height="1350" style="width:100%;border-radius:18px;margin-top:12px;background:#111"></canvas><div class="acts"><button class="pri" id="wrSh">Partager</button><button id="wrDl">Télécharger</button><button id="wrX">Fermer</button></div></dialog>
+<div id="offB" style="display:none;position:fixed;top:calc(env(safe-area-inset-top,0px) + 6px);left:50%;transform:translateX(-50%);z-index:60;background:var(--ink);color:var(--bg);font:500 12.5px var(--ui);padding:7px 14px;border-radius:999px;white-space:nowrap">Hors connexion · tes spots restent disponibles</div>
 <dialog id="dCr"><div class="grab"></div><h2>Recadrer</h2><div class="ser">Glisse pour déplacer, pince ou utilise le curseur pour zoomer.</div><div id="crF" style="position:relative;overflow:hidden;margin:14px auto;border-radius:16px;touch-action:none;background:#000"><img id="crI" alt="" draggable="false" style="position:absolute;left:0;top:0;transform-origin:0 0;max-width:none;user-select:none;-webkit-user-select:none"></div><input type="range" id="crZ" min="1" max="4" step="0.01" value="1" aria-label="Zoom"><div class="acts"><button class="pri" id="crOk">Valider</button><button id="crNo">Annuler</button></div></dialog>
 <dialog id="dRel"><div class="grab"></div><h2 id="rlT"></h2><div id="rlL"></div><div class="acts"><button id="rlX">Fermer</button></div></dialog>
 <dialog id="dAV"><div class="grab"></div><h2 id="avT"></h2><div id="avL"></div><div class="acts"><button id="avX">Fermer</button></div></dialog>
@@ -477,7 +482,7 @@ const mapsLink=(n,a)=>"https://www.google.com/maps/search/?api=1&query="+encodeU
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
 const LS="carnet-restos";
-let items=[],tab="spots",fCuis="Toutes",fSort="date",editing=null,rating=0,photo="",fCuisSel="Française",lien="";
+let items=[],tab="spots",fCuis="Toutes",fSort="date",editing=null,rating=0,photo="",photoX=[],fCuisSel="Française",lien="";
 let tok=lsGet("cr-tok")||"",me=lsGet("cr-me")||"",viewing=null,soc={fr:[],rq:[]},authErr="",sugs=[],st=null;
 let reco=[],recoState="idle",recoErr="",recoQ=0,pt,sgT,listMode="faits",feed=[],pickSlot=0,pp;
 let prof={};try{prof=JSON.parse(lsGet("cr-prof")||"{}")}catch(e){}
@@ -604,7 +609,8 @@ async function getReco(){
 async function auth(kind){
   if(kind==="signup"&&!($("cg")||{}).checked){authErr="Coche la case pour accepter les conditions d’utilisation et la politique de confidentialité.";return renderAmis()}
   try{const r=await api(kind,{u:$("au").value,p:$("ap").value,cg:kind==="signup"?true:undefined});tok=r.t;me=r.u;lsSet("cr-tok",tok);lsSet("cr-me",me);authErr="";
-    await pull();if(kind==="signup")save();loadSoc();render()}catch(e){authErr=e.message;renderAmis()}
+    {const rf=lsGet("cr-ref");if(rf&&rf!==me){lsSet("cr-ref","");api("add",{u:rf}).then(()=>toast("Demande envoyée à @"+rf+".")).catch(()=>{})}}
+    await pull();if(kind==="signup"){save();api("rcgen",{}).then(r=>{rcN=r.codes.length;showCodes(r.codes,"Bienvenue ! Voici tes codes de secours : ils te permettront de retrouver ton compte si tu oublies ton mot de passe. Note-les maintenant, ils ne seront plus affichés. Chacun ne marche qu’une fois.")}).catch(()=>{})}loadSoc();render()}catch(e){authErr=e.message;renderAmis()}
 }
 async function act(a,u){
   authErr="";
@@ -935,7 +941,7 @@ const RX=["❤️","🔥","🤤","👀"];
 const rxTxt=rx=>Object.entries(rx||{}).map(([u,e])=>e+" @"+esc(u)).join(" · ");
 async function loadBoard(){try{boardRows=(await api("board")).rows;if(tab==="amis"&&!viewing&&!chat)renderAmis()}catch(e){}}
 function renderAmis(){
-  if(!tok){$("view").innerHTML=`<div class="ser" style="margin:12px 0 4px">Crée un compte pour retrouver tes spots partout et les partager avec tes amis.</div><label>Pseudo</label><input id="au" autocapitalize="none" autocomplete="username" placeholder="Ton pseudo"><label>Mot de passe</label><input id="ap" type="password" autocomplete="new-password" placeholder="8 caractères minimum">${authErr?`<div class="note" style="color:#e4572e">${esc(authErr)}</div>`:""}<label class="ck"><input type="checkbox" id="cg"><span>J’ai 15 ans ou plus et j’accepte les <span class="lk" data-x="lg" data-k="cgu">conditions d’utilisation</span> et la <span class="lk" data-x="lg" data-k="priv">politique de confidentialité</span> (pour créer un compte).</span></label><div class="acts"><button data-act="login">Connexion</button><button class="pri" data-act="signup">Créer mon compte</button></div><div class="note" style="margin-top:12px">N’utilise pas un mot de passe que tu emploies ailleurs. Tes spots restent aussi disponibles sans compte, sur cet appareil.</div>`;return}
+  if(!tok){$("view").innerHTML=`<div class="ser" style="margin:12px 0 4px">${REF?`<div class="note" style="color:var(--ink)"><b>@${esc(REF)}</b> t’invite sur Crumb. Crée ton compte pour le retrouver.</div>`:""}Crée un compte pour retrouver tes spots partout et les partager avec tes amis.</div><label>Pseudo</label><input id="au" autocapitalize="none" autocomplete="username" placeholder="Ton pseudo"><label>Mot de passe</label><input id="ap" type="password" autocomplete="new-password" placeholder="8 caractères minimum"><div style="text-align:right;margin-top:6px"><span class="lk" data-x="forgot">Mot de passe oublié ?</span></div>${authErr?`<div class="note" style="color:#e4572e">${esc(authErr)}</div>`:""}<label class="ck"><input type="checkbox" id="cg"><span>J’ai 15 ans ou plus et j’accepte les <span class="lk" data-x="lg" data-k="cgu">conditions d’utilisation</span> et la <span class="lk" data-x="lg" data-k="priv">politique de confidentialité</span> (pour créer un compte).</span></label><div class="acts"><button data-act="login">Connexion</button><button class="pri" data-act="signup">Créer mon compte</button></div><div class="note" style="margin-top:12px">N’utilise pas un mot de passe que tu emploies ailleurs. Tes spots restent aussi disponibles sans compte, sur cet appareil.</div>`;return}
   if(chat)return renderChat();
   const th=Object.fromEntries(threads.map(t=>[t.u,t])),fr=[...soc.fr].sort((a,b)=>((th[b]||{}).ts||0)-((th[a]||{}).ts||0));
   $("view").innerHTML=`<div class="fr" style="margin-top:8px"><span>Connecté : <b>@${esc(me)}</b></span><button class="pillbtn sm" data-act="logout">Déconnexion</button></div>
@@ -1052,10 +1058,27 @@ async function loadFrv(x){
 }
 
 
+
+/* ===== avis des amis sur un même resto ===== */
+let fmC=null;
+const nrmN=t=>norm(String(t||"")).replace(/[^a-z0-9]/g,"");
+const dkm=(a,b,c,d)=>{const t=Math.PI/180,x=Math.sin((c-a)*t/2)**2+Math.cos(a*t)*Math.cos(c*t)*Math.sin((d-b)*t/2)**2;return 2*6371*Math.asin(Math.sqrt(x))};
+async function fillFr(){
+  const el=$("frBox"),x=ficheX;if(!el||!x||!tok)return;
+  try{
+    if(!fmC||Date.now()-fmC.t>120000){const r=await api("fmap",{min:0});fmC={t:Date.now(),items:r.items||[]}}
+    if(ficheX!==x||!$("frBox"))return;
+    const k=nrmN(x.nom),own=ficheCtx&&ficheCtx.u;if(own===me){el.innerHTML="";return}
+    const m=fmC.items.filter(y=>y.u!==me&&y.u!==own&&nrmN(y.nom)===k&&(x.lat==null||y.lat==null||dkm(+x.lat,+x.lon,+y.lat,+y.lon)<2));
+    if(!m.length){el.innerHTML="";return}
+    const rated=m.filter(y=>y.note>0),avg=rated.length?fmt((rated.reduce((a,b)=>a+b.note,0)/rated.length).toFixed(1)):"";
+    el.innerHTML=`<div class="sec" style="margin:16px 0 6px"><span>TES AMIS ICI</span><span style="letter-spacing:0;font-weight:400">${m.length} ami${m.length>1?"s":""}${avg?" · moyenne "+avg+"/10":""}</span></div>`+m.map(y=>`<div class="fr" style="display:block"><b>${PL(y.u)}</b>${y.note?" · ★ "+fmt(y.note):""}${y.avis?`<small style="display:block">${esc(y.avis.slice(0,120))}</small>`:""}</div>`).join("");
+  }catch(e){}
+}
 let ficheCtx=null,ficheX=null,mRows=[],mFr=[],accMode="";
-function cmBox(){return `<div class="sec" style="margin:16px 0 6px"><span>COMMENTAIRES</span></div><div id="cml"></div><div class="row" style="margin-top:8px"><input id="cmi" maxlength="300" aria-label="Commentaire" placeholder="Ajouter un commentaire…"><button class="pillbtn" data-x="cmsend" style="flex:0 0 auto">Publier</button></div>`}
+function cmBox(){return `<div id="frBox"></div><div class="sec" style="margin:16px 0 6px"><span>COMMENTAIRES</span></div><div id="cml"></div><div class="row" style="margin-top:8px"><input id="cmi" maxlength="300" aria-label="Commentaire" placeholder="Ajouter un commentaire…"><button class="pillbtn" data-x="cmsend" style="flex:0 0 auto">Publier</button></div>`}
 async function loadCm(){
-  if(!tok||!ficheCtx)return;const c=ficheCtx;
+  if(!tok||!ficheCtx)return;const c=ficheCtx;fillFr();
   try{const r=await api("cmget",{u:c.u,id:c.id});if(ficheCtx!==c)return;const el=$("cml");if(el)el.innerHTML=r.list.length?r.list.map(z=>`<div class="fr" style="display:block"><b>${PL(z.u)}</b> <small style="color:var(--mute)">${ago(z.t)}</small>${z.u!==me?`<button class="lk" data-x="rpc" data-u="${esc(z.u)}" style="background:none;border:0;font-size:12px;float:right;padding:4px 10px">Signaler</button>`:""}${(z.u===me||c.u===me)?`<button class="lk" data-x="cmdel" data-c="${esc(z.id)}" style="background:none;border:0;font-size:12px;float:right;padding:4px 0">Supprimer</button>`:""}<div style="font-size:14px;margin-top:2px;overflow-wrap:anywhere">${esc(z.m)}</div></div>`).join(""):'<div class="note">Aucun commentaire pour l’instant.</div>'}catch(e){const el=$("cml");if(el)el.innerHTML=""}
 }
 XH.cmsend=async()=>{const i=$("cmi"),t=i&&i.value.trim();if(!t||!ficheCtx)return;try{await api("cmpost",{u:ficheCtx.u,id:ficheCtx.id,m:t,nom:ficheCtx.nom});i.value="";loadCm()}catch(e){toast(e.message)}};
@@ -1190,8 +1213,8 @@ function renderProfile(v){
   <div class="pav" ${own?'data-act="pav"':""} style="${p.avatar?`background-image:url('${p.avatar}')`:""}">${p.avatar?"":own?"＋":esc((name.replace("@","")[0]||"?").toUpperCase())}</div>
   <div class="pn">${esc(name)}</div><div class="psub">${src.length} spot${src.length>1?"s":""} · ${avg} ★ moyenne · ${new Set(src.map(x=>x.cuisine)).size} cuisine${new Set(src.map(x=>x.cuisine)).size>1?"s":""}</div>`
   if(p.bio)h+=`<div class="pbio">${esc(p.bio)}</div>`;
-  if(own)h+=`<div style="text-align:center;margin-top:${p.bio?"4":"10"}px"><button class="ch" data-x="bioedit" style="font-size:13px">${p.bio?"Modifier la bio":"Ajouter une bio"}</button></div>`;
-  if(tok){const rk=own?me:v.u;relLoad(rk);const rc=relC[rk],nf=rc?rc.fl.length:"…",ng=rc?rc.fo.length:"…";h+=`<div class="cg" style="justify-content:center;margin:10px 0 0"><button class="ch" data-x="relfl"><b>${nf}</b> abonné${nf===1?"":"s"}</button><button class="ch" data-x="relfo"><b>${ng}</b> abonnement${ng===1?"":"s"}</button></div>`}
+  if(own)h+=`<div style="text-align:center;margin-top:${p.bio?"4":"10"}px"><button class="ch" data-x="bioedit" style="font-size:13px">${p.bio?"Modifier la bio":"Ajouter une bio"}</button>${tok?`<button class="ch" data-x="shareme" style="font-size:13px;margin-left:6px">Partager mon profil</button>`:""}<button class="ch" data-x="wrap" style="font-size:13px;margin-left:6px">Mon bilan</button></div>`;
+  if(tok){const rk=own?me:v.u;relLoad(rk);const rc=relGet(rk),nf=rc?rc.fl.length:"…",ng=rc?rc.fo.length:"…";h+=`<div class="cg" style="justify-content:center;margin:10px 0 0"><button class="ch" data-x="relfl"><b>${nf}</b> abonné${nf===1?"":"s"}</button><button class="ch" data-x="relfo"><b>${ng}</b> abonnement${ng===1?"":"s"}</button></div>`}
 
   if(!own)h+=`<div class="cg" style="justify-content:center;margin-top:12px">${viewing.friend?'<button class="ch on" data-x="chatv">Écrire</button><button class="ch" data-x="unfr">Retirer</button>':'<button class="ch '+(viewing.following?"on":"")+'" data-x="folt">'+(viewing.following?"Abonné":"S’abonner")+'</button>'}<button class="ch" data-x="rpu">Signaler</button><button class="ch" data-x="blk">Bloquer</button></div>`;
   if(own&&!tok)h+=`<div class="note" style="text-align:center;margin-top:8px">Crée un compte dans « Amis » pour que tes amis voient ton profil.</div>`;
@@ -1234,8 +1257,10 @@ function openForm(it){
   $("fN").value=it?it.nom:"";$("fV").value=it?it.ville||"":"";$("fD").value=it?it.date||"":new Date().toISOString().slice(0,10);
   fCuisSel=it?it.cuisine:"Française";lien=it?it.lien||"":"";$("fCs").value="";
   $("fA").value=it?it.avis||"":"";$("sug").style.display="none";$("photoResults").innerHTML="";
-  rating=it?it.note||0:0;photo=it?it.photo||"":"";paintPick();paintCg();paintPhoto();$("fTodo").classList.toggle("on",!!(it&&it.todo));formAlb=it&&it.alb?[...it.alb]:[];paintFAl();formOcc=it&&it.occ?[...it.occ]:[];paintOcc();$("fMust").value=it&&it.must||"";$("fPrix").value=it&&it.prix?it.prix:"";fLat=it?it.lat??null:null;fLon=it?it.lon??null:null;$("dForm").showModal();
+  rating=it?it.note||0:0;photo=it?it.photo||"":"";photoX=it&&it.phx?[...it.phx]:[];paintPhx();paintPick();paintCg();paintPhoto();$("fTodo").classList.toggle("on",!!(it&&it.todo));formAlb=it&&it.alb?[...it.alb]:[];paintFAl();formOcc=it&&it.occ?[...it.occ]:[];paintOcc();$("fMust").value=it&&it.must||"";$("fPrix").value=it&&it.prix?it.prix:"";fLat=it?it.lat??null:null;fLon=it?it.lon??null:null;$("dForm").showModal();
 }
+function paintPhx(){const l=$("phxL");if(!l)return;l.innerHTML=photoX.map((p,i)=>`<span style="position:relative;display:inline-block"><span style="display:block;width:64px;height:64px;border-radius:12px;background:center/cover url(${p})"></span><button type="button" data-x="phxdel" data-i="${i}" aria-label="Retirer" style="position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;border:0;background:#000;color:#fff;font-size:14px;line-height:1">×</button></span>`).join("");$("phxAdd").style.display=photoX.length>=2?"none":""}
+XH.phxdel=b=>{photoX.splice(+b.dataset.i,1);paintPhx()};
 function paintPhoto(){const p=$("fPh");p.style.backgroundImage=photo?`url(${photo})`:"";p.textContent=photo?"":"+ Ajouter une photo"}
 function shrink(file){return new Promise(res=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,520/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*k;c.height=im.height*k;c.getContext("2d").drawImage(im,0,0,c.width,c.height);res(imgData(c,.7))};im.onerror=()=>res("");im.src=r.result};r.onerror=()=>res("");r.readAsDataURL(file)})}
 
@@ -1259,8 +1284,9 @@ function relLoad(k){
   api("rel",{u:k}).then(r=>{relC[k]={t:Date.now(),fo:r.fo||[],fl:r.fl||[]}}).catch(()=>{relC[k]={t:Date.now(),fo:[],fl:[],err:1}}).finally(()=>{relB[k]=0;if(k===me?(tab==="profil"&&!viewing):(viewing&&viewing.u===k&&viewing.page==="profile"))render()});
 }
 const relKey=()=>viewing?viewing.u:me;
+function relGet(k){const c=relC[k];if(!c)return null;if(k!==me)return c;const u=(a,b)=>[...new Set([...(a||[]),...(b||[])])].filter(x=>x!==me);return{fo:u(c.fo,soc.fr),fl:u(c.fl,soc.fr)}}
 function openRel(kind){
-  const c=relC[relKey()]||{fo:[],fl:[]},l=kind==="fl"?c.fl:c.fo;
+  const c=relGet(relKey())||{fo:[],fl:[]},l=kind==="fl"?c.fl:c.fo;
   $("rlT").textContent=kind==="fl"?"Abonnés":"Abonnements";
   $("rlL").innerHTML=l.length?l.map(u=>`<div class="fr"><b>${PL(u)}</b></div>`).join(""):`<div class="note">${kind==="fl"?"Aucun abonné pour l’instant.":"Aucun abonnement pour l’instant."}</div>`;
   $("dRel").showModal();
@@ -1284,6 +1310,69 @@ XH.bioedit=()=>{$("bioT").value=prof.bio||"";$("bioC").textContent=($("bioT").va
 $("bioT").oninput=()=>{$("bioC").textContent=$("bioT").value.length+"/160"};
 $("bioNo").onclick=()=>$("dBio").close();
 $("bioOk").onclick=()=>{prof.bio=$("bioT").value.trim().slice(0,160);saveProf();$("dBio").close();render()};
+
+
+/* ===== partage par lien / invitations ===== */
+const REF=(()=>{const m=location.pathname.match(/^\/u\/([A-Za-z0-9_]{3,20})\/?$/);if(m){const r=m[1].toLowerCase();lsSet("cr-ref",r);try{history.replaceState(null,"","/")}catch(e){}return r}return lsGet("cr-ref")||""})();
+const shareTxt=async(text,url)=>{try{if(navigator.share){await navigator.share({text,url});return}}catch(e){if(e&&e.name==="AbortError")return}try{await navigator.clipboard.writeText(text+" "+url);toast("Lien copié.")}catch(e){toast(url)}};
+XH.shareme=()=>shareTxt("Retrouve-moi sur Crumb, mon carnet de restos !",location.origin+"/u/"+me);
+XH.shareres=()=>{const x=ficheX||{};const n=x.note?" "+fmt(x.nv===2?x.note:x.note)+"/10":"";shareTxt("J’ai testé "+(x.nom||"ce resto")+n+" sur Crumb.",location.origin+(me?"/u/"+me:"/"))};
+setTimeout(()=>{if(REF&&tok&&REF!==me){lsSet("cr-ref","");openProf(REF)}else if(REF&&tok){lsSet("cr-ref","")}},2600);
+
+/* ===== bilan de l'année ===== */
+function wrapStats(){
+  const Y=new Date().getFullYear(),all=live().filter(x=>!x.todo&&x.nom);
+  let l=all.filter(x=>String(x.date||new Date(x.maj||0).toISOString()).slice(0,4)==String(Y));
+  const full=!l.length;if(full)l=all;
+  const cnt=(k)=>{const m={};l.forEach(x=>{const v=x[k];if(v)m[v]=(m[v]||0)+1});return Object.entries(m).sort((a,b)=>b[1]-a[1])};
+  const rated=l.filter(x=>x.note>0),best=[...rated].sort((a,b)=>b.note-a.note||String(b.date||"").localeCompare(String(a.date||"")))[0];
+  return{Y,full,n:l.length,avg:rated.length?rated.reduce((a,b)=>a+b.note,0)/rated.length:0,cu:cnt("cuisine"),ci:cnt("ville"),best,nc:new Set(l.map(x=>x.cuisine)).size};
+}
+function drawWrap(){
+  const w=wrapStats(),c=$("wrC"),g=c.getContext("2d"),W=1080,H=1350,ff=getComputedStyle(document.body).fontFamily||"sans-serif";
+  const bg=g.createLinearGradient(0,0,W,H);bg.addColorStop(0,"#1b0f17");bg.addColorStop(1,"#0e0e10");g.fillStyle=bg;g.fillRect(0,0,W,H);
+  const star=(x,y,r,col,a)=>{g.save();g.globalAlpha=a;g.fillStyle=col;g.beginPath();const pts=[[50,0],[61,35],[98,35],[68,57],[79,91],[50,70],[21,91],[32,57],[2,35],[39,35]];pts.forEach(([px,py],i)=>{const X=x+(px-50)*r/50,Y=y+(py-50)*r/50;i?g.lineTo(X,Y):g.moveTo(X,Y)});g.closePath();g.fill();g.restore()};
+  star(900,200,260,"#FF4FA9",.18);star(140,1180,180,"#FF4FA9",.12);star(960,1100,70,"#fff",.12);star(200,420,40,"#FF4FA9",.25);
+  g.fillStyle="#FF4FA9";g.beginPath();g.roundRect?g.roundRect(80,80,96,96,28):g.rect(80,80,96,96);g.fill();star(128,128,34,"#fff",1);
+  g.fillStyle="#f5efe3";g.font=`800 40px ${ff}`;g.textBaseline="alphabetic";g.fillText("CRUMB",200,142);
+  g.font=`800 150px ${ff}`;g.fillText("Mon année",80,380);g.fillStyle="#FF4FA9";g.fillText("en restos",80,520);
+  g.fillStyle="#f5efe3";g.font=`700 64px ${ff}`;
+  const big=(y,v,lab)=>{g.fillStyle="#FF4FA9";g.font=`800 120px ${ff}`;g.fillText(v,80,y);g.fillStyle="#bdb5a8";g.font=`500 38px ${ff}`;g.fillText(lab,80,y+52)};
+  big(700,String(w.n),w.n>1?"restos testés"+(w.full?"":" en "+w.Y):"resto testé"+(w.full?"":" en "+w.Y));
+  const t=(y,lab,v)=>{g.fillStyle="#bdb5a8";g.font=`500 34px ${ff}`;g.fillText(lab,80,y);g.fillStyle="#f5efe3";g.font=`700 52px ${ff}`;let s=v;while(g.measureText(s).width>920&&s.length>4)s=s.slice(0,-2);g.fillText(s===v?v:s+"…",80,y+58)};
+  t(900,"Cuisine du moment",w.cu[0]?w.cu[0][0]+" · "+w.cu[0][1]+"×":"–");
+  t(1040,"Meilleure table",w.best?w.best.nom+" · "+String(w.best.note).replace(".",",")+"/10":"–");
+  t(1180,"Note moyenne",w.avg?w.avg.toFixed(1).replace(".",",")+"/10 · "+w.nc+" cuisine"+(w.nc>1?"s":""):"–");
+  g.fillStyle="#7d766b";g.font=`500 30px ${ff}`;g.fillText(location.host,80,1290);
+  $("wrS").textContent=w.n?(w.full?"Tous tes restos jusqu’ici.":"Ton année "+w.Y+" sur Crumb."):"Ajoute des restos pour voir ton bilan.";
+}
+XH.wrap=()=>{drawWrap();$("dWr").showModal()};
+$("wrX").onclick=()=>$("dWr").close();
+const wrBlob=()=>new Promise(r=>$("wrC").toBlob(r,"image/png"));
+$("wrSh").onclick=async()=>{const b=await wrBlob();if(!b)return;const f=new File([b],"mon-bilan-crumb.png",{type:"image/png"});try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],text:"Mon bilan Crumb"});return}}catch(e){if(e&&e.name==="AbortError")return}$("wrDl").click()};
+$("wrDl").onclick=async()=>{const b=await wrBlob();if(!b)return;const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="mon-bilan-crumb.png";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)};
+/* ===== hors connexion ===== */
+(()=>{const b=$("offB"),u=()=>{b.style.display=navigator.onLine?"none":""};addEventListener("online",u);addEventListener("offline",u);u()})();
+/* ===== codes de secours / mot de passe oublié / signalements (admin) ===== */
+let rcN=0,admF=false,rcFresh=false,naF=true;
+XH.natog=async()=>{try{const r=await api("setna",{v:!naF});naF=r.na;paintSet()}catch(e){toast(e.message)}};
+function showCodes(codes,intro){
+  $("rcI").textContent=intro||"Note ces 8 codes en lieu sûr (capture d’écran, gestionnaire de mots de passe…). Chacun ne marche qu’une fois et permet de changer ton mot de passe si tu l’oublies. En générer de nouveaux annule les anciens.";
+  $("rcP").style.display="none";$("rcG").style.display="none";$("rcC").style.display="";
+  $("rcL").style.display="";$("rcL").innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;font:600 16px ui-monospace,Menlo,monospace;letter-spacing:.04em">${codes.map(c=>`<div class="fr" style="justify-content:center">${esc(c)}</div>`).join("")}</div>`;
+  $("rcC").onclick=()=>{try{navigator.clipboard.writeText(codes.join("\n"));toast("Codes copiés.")}catch(e){}};
+  if(!$("dRc").open)$("dRc").showModal();
+}
+XH.rcgen=()=>{$("rcI").textContent="Pour te permettre de retrouver ton compte sans e-mail si tu oublies ton mot de passe. Confirme ton mot de passe pour créer tes codes.";$("rcO").value="";$("rcE").textContent="";$("rcP").style.display="";$("rcL").style.display="none";$("rcG").style.display="";$("rcC").style.display="none";$("dSet").close();$("dRc").showModal()};
+$("rcG").onclick=async()=>{try{const r=await api("rcgen",{old:$("rcO").value});rcN=r.codes.length;showCodes(r.codes)}catch(e){$("rcE").textContent=e.message}};
+$("rcX").onclick=()=>$("dRc").close();
+XH.forgot=()=>{$("fgU").value=($("au")||{}).value||"";$("fgC").value=$("fgP").value="";$("fgE").textContent="";$("dFg").showModal()};
+$("fgX").onclick=()=>$("dFg").close();
+$("fgS").onclick=async()=>{try{const r=await api("rcuse",{u:$("fgU").value,code:$("fgC").value,pw:$("fgP").value});tok=r.t;me=r.u;lsSet("cr-tok",tok);lsSet("cr-me",me);$("dFg").close();authErr="";await pull();loadSoc();render();toast(r.left>0?"Mot de passe changé. Il te reste "+r.left+" code"+(r.left>1?"s":"")+".":"Mot de passe changé. Pense à générer de nouveaux codes de secours.")}catch(e){$("fgE").textContent=e.message}};
+XH.admrp=async()=>{try{const r=await api("reports");$("adL").innerHTML=r.list.length?r.list.map(x=>`<div class="fr" style="display:block"><b>${esc(x.why||"?")}</b> · ${new Date(x.t).toLocaleString()}<br><small style="display:block">par @${esc(x.by)} contre @${esc(x.u)}${x.nom?" · "+esc(x.nom):""}</small>${x.m?`<div class="note">${esc(x.m)}</div>`:""}<div class="cg" style="margin-top:6px"><button class="ch" data-x="admview" data-u="${esc(x.u)}">Voir le profil</button><button class="ch" data-x="admdel" data-k="${esc(x.k)}">Classer</button></div></div>`).join(""):`<div class="note">Aucun signalement.</div>`;$("dSet").close();$("dAdm").showModal()}catch(e){toast(e.message)}};
+XH.admview=b=>{$("dAdm").close();openProf(b.dataset.u)};
+XH.admdel=async b=>{try{await api("rpdel",{id:b.dataset.k});b.closest(".fr").remove()}catch(e){toast(e.message)}};
+$("adX").onclick=()=>$("dAdm").close();
 /* ===== recadrage des photos ===== */
 let cr=null;const crP=new Map();
 function cropPick(file,w,h,q){return new Promise(res=>{const r=new FileReader();r.onload=()=>openCrop(r.result,w,h,q,res);r.onerror=()=>res("");r.readAsDataURL(file)})}
@@ -1328,9 +1417,10 @@ async function searchPlaces(){
 const goLink=x=>"https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(x.lat!=null&&x.lon!=null?x.lat+","+x.lon:x.nom+" "+(x.ville||""));
 function openDet(id){
   const x=(viewing?viewing.items:items).find(i=>i.id===id);if(!x||x.del)return;const c=col(x.cuisine),fiche=esc(su(x.lien,mapsLink(x.nom,x.ville)));
-  $("detBody").innerHTML=`<div class="dimg" style="--cb:${c.b};--cf:${c.f}">${x.photo?`<img loading="lazy" decoding="async" src="${x.photo}" alt="">`:flag(x.cuisine)}</div><h2>${esc(x.nom)}</h2><div class="ser">${esc(x.cuisine)}${x.ville?" · "+esc(x.ville):""}${x.date?" · "+new Date(x.date).toLocaleDateString(I18N.loc()):""}${x.prix?" · "+x.prix+" €/pers.":""}</div>${albTags(x)}${(x.occ||[]).length?`<div class="cg" style="margin-top:8px">${x.occ.map(k=>`<span class="ch on" style="pointer-events:none">${(OCC.find(o=>o[0]===k)||[,k])[1]}</span>`).join("")}</div>`:""}${x.must?`<div style="margin-top:12px"><b>À retenir</b> · ${esc(x.must)}</div>`:""}${x.note?`<div style="font-size:min(26px,6.4vw);margin-top:8px">${stars(x.note)} <span style="font-size:16px;color:var(--mute)">${fmt(x.note)}/10</span></div>`:""}${x.avis?`<p style="white-space:pre-wrap;margin:12px 0 0">${esc(x.avis)}</p>`:""}<div id="frv"></div><div class="acts"><a class="xa pillbtn" style="text-decoration:none;text-align:center;flex:1" target="_blank" rel="noopener" href="${esc(goLink(x))}">Y aller</a><a class="xa pillbtn" style="text-decoration:none;text-align:center;flex:1" target="_blank" rel="noopener" href="${fiche}">Voir la fiche</a></div><div class="acts">${navigator.share?`<button data-share="${esc(x.id)}">Partager</button>`:""}${viewing?"":`<button data-alb2="${esc(x.id)}">Albums</button><button data-rec="${esc(x.id)}">Recommander</button>`}</div>${viewing?"":`<div class="acts"><button data-del="${esc(x.id)}">Supprimer</button><button class="pri" data-ed="${esc(x.id)}">${x.todo?"J’y suis allé":"Modifier"}</button></div>`}`;
+  $("detBody").innerHTML=`<div class="dimg" style="--cb:${c.b};--cf:${c.f}">${x.photo?`<img loading="lazy" decoding="async" src="${x.photo}" alt="">`:flag(x.cuisine)}</div>${(x.phx||[]).length?`<div style="display:flex;gap:8px;overflow-x:auto;margin:8px 0 0">${x.phx.map(p=>`<img loading="lazy" decoding="async" alt="" src="${p}" style="height:120px;width:120px;object-fit:cover;border-radius:14px;flex:none">`).join("")}</div>`:""}<h2>${esc(x.nom)}</h2><div class="ser">${esc(x.cuisine)}${x.ville?" · "+esc(x.ville):""}${x.date?" · "+new Date(x.date).toLocaleDateString(I18N.loc()):""}${x.prix?" · "+x.prix+" €/pers.":""}</div>${albTags(x)}${(x.occ||[]).length?`<div class="cg" style="margin-top:8px">${x.occ.map(k=>`<span class="ch on" style="pointer-events:none">${(OCC.find(o=>o[0]===k)||[,k])[1]}</span>`).join("")}</div>`:""}${x.must?`<div style="margin-top:12px"><b>À retenir</b> · ${esc(x.must)}</div>`:""}${x.note?`<div style="font-size:min(26px,6.4vw);margin-top:8px">${stars(x.note)} <span style="font-size:16px;color:var(--mute)">${fmt(x.note)}/10</span></div>`:""}${x.avis?`<p style="white-space:pre-wrap;margin:12px 0 0">${esc(x.avis)}</p>`:""}<div id="frv"></div><div class="acts"><a class="xa pillbtn" style="text-decoration:none;text-align:center;flex:1" target="_blank" rel="noopener" href="${esc(goLink(x))}">Y aller</a><a class="xa pillbtn" style="text-decoration:none;text-align:center;flex:1" target="_blank" rel="noopener" href="${fiche}">Voir la fiche</a></div><div class="acts">${navigator.share?`<button data-share="${esc(x.id)}">Partager</button>`:""}${viewing?"":`<button data-alb2="${esc(x.id)}">Albums</button><button data-rec="${esc(x.id)}">Recommander</button>`}</div>${viewing?"":`<div class="acts"><button data-del="${esc(x.id)}">Supprimer</button><button class="pri" data-ed="${esc(x.id)}">${x.todo?"J’y suis allé":"Modifier"}</button></div>`}`;
   ficheCtx=null;ficheX=null;
   if(tok){ficheCtx={u:viewing?viewing.u:me,id:x.id,nom:x.nom};ficheX=x;$("detBody").insertAdjacentHTML("beforeend",cmBox())}
+  if(!viewing&&!x.todo)$("detBody").insertAdjacentHTML("beforeend",`<div style="margin-top:14px"><button class="ch" data-x="shareres">Partager</button></div>`);
   $("dDet").showModal();if(tok&&!viewing)loadFrv(x);if(ficheCtx)loadCm();
 }
 function openFil(){
@@ -1347,6 +1437,8 @@ $("cg").onclick=e=>{const b=e.target.closest("[data-c]");if(b){fCuisSel=b.datase
 $("fCs").oninput=paintCg;
 $("pick").onclick=e=>{const s=e.target.closest("[data-i]");if(!s)return;const i=+s.dataset.i,r=s.getBoundingClientRect(),v=(e.clientX-r.left)<r.width/2?i-.5:i;rating=rating===v?0:v;paintPick();s.classList.remove("pop");void s.offsetWidth;s.classList.add("pop")};
 $("fPh").onclick=()=>$("fFile").click();
+$("phxAdd").onclick=()=>$("fFile2").click();
+$("fFile2").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(f){const d=await cropPick(f,520,520,.72);if(d&&photoX.length<2){photoX.push(d);paintPhx()}}};
 $("fFile").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(f){const d=await cropPick(f,520,520,.72);if(d){photo=d;paintPhoto()}}};
 $("fN").oninput=()=>{clearTimeout(sgT);sgT=setTimeout(searchPlaces,600)};
 $("sug").onclick=e=>{if(e.target.closest("a"))return;const d=e.target.closest("[data-k]");if(!d)return;const s=sugs[+d.dataset.k];
@@ -1356,7 +1448,7 @@ $("fX").onclick=()=>$("dForm").close();
 $("fS").onclick=()=>{
   const nom=$("fN").value.trim();if(!nom){$("fN").focus();return}
   const cuisine=fCuisSel;
-  const it={id:editing?editing.id:"r"+Date.now().toString(36)+Math.random().toString(36).slice(2,5),nom,ville:$("fV").value.trim(),date:$("fD").value,cuisine,note:rating,avis:$("fA").value.trim(),photo,lien,todo:$("fTodo").classList.contains("on"),alb:formAlb,lat:fLat,lon:fLon,prix:Math.max(0,+$("fPrix").value||0),pe:1,occ:formOcc,must:$("fMust").value.trim()};
+  const it={id:editing?editing.id:"r"+Date.now().toString(36)+Math.random().toString(36).slice(2,5),nom,ville:$("fV").value.trim(),date:$("fD").value,cuisine,note:rating,avis:$("fA").value.trim(),photo,phx:photoX.length?[...photoX]:undefined,lien,todo:$("fTodo").classList.contains("on"),alb:formAlb,lat:fLat,lon:fLon,prix:Math.max(0,+$("fPrix").value||0),pe:1,occ:formOcc,must:$("fMust").value.trim()};
   $("dForm").close();const isNew=!editing;persist(it);
   if(isNew&&!it.todo){if(navigator.vibrate)navigator.vibrate(12);if(tok&&soc.fr.length)toastAct("Ajouté à ton carnet","Partager",()=>openRec(it.id));else toast("Ajouté à ton carnet")}
 };
@@ -1484,7 +1576,7 @@ function applyTheme(v){
 const themePref=()=>lsGet("cr-theme")||"auto";
 XH.lang=b=>{I18N.set(b.dataset.v);paintSet();render()};
 XH.theme=b=>{lsSet("cr-theme",b.dataset.v);applyTheme(b.dataset.v);paintSet()};
-function openSet(){paintSet();$("dSet").showModal();if(tok)api("blocks").then(r=>{blkL=r.list||[];if($("dSet").open)paintSet()}).catch(()=>{})}
+function openSet(){paintSet();$("dSet").showModal();if(tok)api("blocks").then(r=>{blkL=r.list||[];rcN=r.rcn||0;admF=!!r.adm;naF=r.na!==false;if($("dSet").open)paintSet()}).catch(()=>{})}
 function paintSet(){
   const row=(t,sub,btn)=>`<div class="setr"><span>${t}${sub?`<small>${sub}</small>`:""}</span>${btn||""}</div>`;
   let h="";
@@ -1494,6 +1586,9 @@ function paintSet(){
     h+=row(soc.pub?"Profil public":"Profil privé",soc.pub?"Tout le monde peut te suivre":"Visible de tes amis seulement",`<button class="ch ${soc.pub?"on":""}" data-x="pubt2">${soc.pub?"Rendre privé":"Rendre public"}</button>`);
     h+=row("Mot de passe","",`<button class="ch" data-x="chpw2">Modifier</button>`);
     h+=row("Autres appareils","Les déconnecter","<button class=\"ch\" data-x=\"logall2\">Déconnecter</button>");
+    h+=row("Codes de secours",rcN?rcN+" code"+(rcN>1?"s":"")+" restant"+(rcN>1?"s":""):"Pour retrouver ton compte sans e-mail",`<button class="ch ${rcN?"":"on"}" data-x="rcgen">${rcN?"Renouveler":"Créer"}</button>`);
+    h+=row("Activité des amis",naF?"Notif quand un ami ajoute un resto":"Désactivée",`<button class="ch ${naF?"on":""}" data-x="natog">${naF?"Activée":"Désactivée"}</button>`);
+    if(admF)h+=row("Signalements","Réservé à l’administrateur",`<button class="ch" data-x="admrp">Ouvrir</button>`);
   }else h+=row("Pas de compte","Tes spots sont sur cet appareil","<button class=\"ch\" data-x=\"goAmis\">Créer un compte</button>");
   if(tok)h+=`<div class="setg">Utilisateurs bloqués</div>`+(blkL.length?blkL.map(u=>row("@"+esc(u),"",`<button class="ch" data-x="unblk" data-u="${esc(u)}">Débloquer</button>`)).join(""):row("Personne n’est bloqué","",""))+`<div class="row" style="margin-top:8px"><input id="unbN" placeholder="@pseudo à débloquer" autocapitalize="off" autocorrect="off"><button class="ch" data-x="unblkN">Débloquer</button></div>`;
   h+=`<div class="setg">Langue</div><div class="cg" style="margin:8px 0">${[["fr","Français"],["en","English"]].map(([v,t])=>`<button class="ch ${I18N.get()===v?"on":""}" data-x="lang" data-v="${v}" data-nt="1">${t}</button>`).join("")}</div><div class="setg">Apparence</div><div class="cg" style="margin:8px 0">${THEMES.map(([v,t])=>`<button class="ch ${themePref()===v?"on":""}" data-x="theme" data-v="${v}">${t}</button>`).join("")}</div>`;

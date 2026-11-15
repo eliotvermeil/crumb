@@ -105,6 +105,7 @@ function cleanItem(x) {
   if (x.lat != null && x.lon != null && Math.abs(+x.lat) <= 90 && Math.abs(+x.lon) <= 180) { o.lat = +x.lat; o.lon = +x.lon; }
   const p = x.photo;
   if (typeof p === "string" && ((/^data:image\/(jpeg|webp|png);base64,/.test(p) && p.length < 150000) || (/^https:\/\//.test(p) && p.length < 400))) o.photo = p;
+  if (Array.isArray(x.phx)) { const px = x.phx.filter((q) => typeof q === "string" && /^data:image\/(jpeg|webp|png);base64,/.test(q) && q.length < 150000).slice(0, 2); if (px.length) o.phx = px; }
   return o.nom ? o : null;
 }
 
@@ -183,6 +184,10 @@ const VAPID_PUB = "BPovVXPxhIZ_WX6Z4JyG1cZ_Pzqv1gvIZ5CPfkvz_tGk7PB9WSirQnU5eAvHl
 const b64u = (b) => btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 const unb64u = (s) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((s.length + 3) % 4)), (c) => c.charCodeAt(0));
 const vpk = () => { const k = ENV.VAPID_PRIVATE !== undefined ? "VAPID_PRIVATE" : Object.keys(ENV).find((x) => /vapid/i.test(x) && /private|priv|key|secret/i.test(x) && typeof ENV[x] === "string"); return k ? String(ENV[k]).trim().replace(/^["']|["']$/g, "") : ""; };
+const sha = async (x) => b64u(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(x)));
+const RCA = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const rcNew = () => { const b = crypto.getRandomValues(new Uint8Array(12)); const c = [...b].map((x) => RCA[x % 32]).join(""); return c.slice(0, 4) + "-" + c.slice(4, 8) + "-" + c.slice(8); };
+const rcNorm = (x) => String(x || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
 const cat = (...a) => { const o = new Uint8Array(a.reduce((n, x) => n + x.length, 0)); let i = 0; for (const x of a) { o.set(x, i); i += x.length; } return o; };
 const hk = async (salt, ikm, info, len) => {
   const k = await crypto.subtle.importKey("raw", ikm, "HKDF", false, ["deriveBits"]);
@@ -214,17 +219,17 @@ async function pushTo(st, to, o) {
   if (!vpk()) return;
   const k = "ps/" + to, subs = (await st.get(k, { type: "json" }).catch(() => null)) || [];
   if (!subs.length) return;
-  const T = { req: ["Nouvelle demande d’ami", `@${o.u} veut devenir ton ami`], acc: ["Demande acceptée", `@${o.u} a accepté ta demande`], fol: ["Nouvel abonné", `@${o.u} s’est abonné à ton profil`], rx: ["Nouvelle réaction", `@${o.u} a réagi ${o.e || ""} à ${o.m || "ton resto"}`], cm: ["Nouveau commentaire", `@${o.u} : ${o.x || ""}`] }[o.ty] || ["Crumb", "Nouvelle activité"];
+  const T = { req: ["Nouvelle demande d’ami", `@${o.u} veut devenir ton ami`], acc: ["Demande acceptée", `@${o.u} a accepté ta demande`], fol: ["Nouvel abonné", `@${o.u} s’est abonné à ton profil`], nw: ["Nouveau resto", `@${o.u} a ajouté ${o.m || "un resto"}`], rx: ["Nouvelle réaction", `@${o.u} a réagi ${o.e || ""} à ${o.m || "ton resto"}`], cm: ["Nouveau commentaire", `@${o.u} : ${o.x || ""}`] }[o.ty] || ["Crumb", "Nouvelle activité"];
   const payload = JSON.stringify({ title: T[0], body: T[1], tag: o.ty });
   const keep = [];
   await Promise.all(subs.map(async (s) => { try { const c = await pushOne(s, payload); if (c !== 404 && c !== 410) keep.push(s); } catch { keep.push(s); } }));
   if (keep.length !== subs.length) await st.setJSON(k, keep).catch(() => {});
 }
 
-const handle = async (req) => {
+const handle = async (req, ctx) => {
   if (req.method !== "POST") return J({ e: "bad" }, 405);
   const raw = await req.text();
-  if (raw.length > 6e6) return J({ e: "Requête trop volumineuse." }, 413);
+  if (raw.length > 12e6) return J({ e: "Requête trop volumineuse." }, 413);
   let B;
   try { B = JSON.parse(raw); } catch { return J({ e: "bad" }, 400); }
   if (!B || typeof B !== "object") return J({ e: "bad" }, 400);
@@ -250,6 +255,23 @@ const handle = async (req) => {
   }
 
   const key = await secret(st);
+  if (a === "rcuse") {
+    if (await limit("rcu:" + ip, 10, 36e5)) return TOO();
+    const n = nm(u), code = rcNorm(B.code);
+    if (n && (await limit("rcu:" + n, 8, 36e5))) return TOO();
+    const bad = () => J({ e: "Pseudo ou code de secours incorrect." }, 401);
+    const o = /^[a-z0-9_]{3,20}$/.test(n) ? await st.get("u/" + n, { type: "json" }) : null;
+    if (!o || !Array.isArray(o.rc) || !o.rc.length || code.length !== 12) return bad();
+    const i = o.rc.indexOf(await sha((o.rs || "") + code));
+    if (i < 0) return bad();
+    if (!pwOk(pw, n)) return J({ e: "Nouveau mot de passe : 8 caractères minimum, pas trop simple." }, 400);
+    o.rc.splice(i, 1);
+    o.salt = randomBytes(16).toString("hex");
+    o.h = (await hash(pw, o.salt)).toString("hex");
+    o.tv = (o.tv || 0) + 1;
+    await st.setJSON("u/" + n, o);
+    return J({ t: sign(n, o.tv, key), u: n, left: o.rc.length });
+  }
   if (a === "signup" || a === "login") {
     const n = nm(u);
     if (!/^[a-z0-9_]{3,20}$/.test(n)) return J({ e: "Pseudo : 3 à 20 lettres, chiffres ou _." }, 400);
@@ -276,7 +298,7 @@ const handle = async (req) => {
   self.fo = self.fo || [];
   const saveU = (n, o) => st.setJSON("u/" + n, o);
   const data = async (n) => (await st.get("d/" + n, { type: "json" })) || [];
-  const idx = async (n) => (await st.get("i/" + n, { type: "json" })) || (await data(n)).map(({ photo, ...r }) => r);
+  const idx = async (n) => (await st.get("i/" + n, { type: "json" })) || (await data(n)).map(({ photo, phx, ...r }) => r);
   const done = (l) => l.filter((x) => !x.del && !x.todo && !x.album);
   const pubs = async () => (await st.get("pubs", { type: "json" })) || [];
   const notify = async (to, o) => {
@@ -348,7 +370,20 @@ const handle = async (req) => {
     for (const [k, x] of mp) if (x.del && now - (x.maj || 0) > 90 * 864e5) mp.delete(k);
     const list = [...mp.values()].slice(0, 3000);
     await st.setJSON("d/" + me, list);
-    await st.setJSON("i/" + me, list.filter((x) => !x.del).map(({ photo, ...r }) => r));
+    await st.setJSON("i/" + me, list.filter((x) => !x.del).map(({ photo, phx, ...r }) => r));
+    const fresh = items.map(cleanItem).find((x) => x && !x.del && !x.album && !x.todo && x.nom && !cur.some((c) => c.id === x.id));
+    if (fresh && self.fr.length) {
+      const go = (async () => {
+        const ak = "ap/" + me, last = (await st.get(ak, { type: "json" })) || 0;
+        if (now - last < 6 * 36e5) return;
+        await st.setJSON(ak, now);
+        await Promise.all(self.fr.slice(0, 30).map(async (f) => {
+          const o = await st.get("u/" + f, { type: "json" });
+          if (o && o.na !== false && !(o.bl || []).includes(me)) await pushTo(st, f, { ty: "nw", u: me, m: fresh.nom });
+        }));
+      })().catch(() => {});
+      if (ctx && ctx.waitUntil) ctx.waitUntil(go);
+    }
     return J({ ok: 1, ts: now, n: list.length });
   }
   if (a === "pset") {
@@ -409,13 +444,21 @@ const handle = async (req) => {
     return J({ ok: 1 });
   }
   if (a === "unblock") { self.bl = (self.bl || []).filter((x) => x !== nm(u)); await saveU(me, self); return J({ ok: 1 }); }
-  if (a === "blocks") return J({ list: self.bl || [] });
+  if (a === "setna") { self.na = !!v; await saveU(me, self); return J({ ok: 1, na: self.na }); }
+  if (a === "blocks") return J({ list: self.bl || [], na: self.na !== false, rcn: (self.rc || []).length, adm: !!ENV.ADMIN && ENV.ADMIN === me });
   if (a === "report") {
     if (await limit("rp:" + me, 10, 36e5)) return TOO();
     const n = nm(u);
     if (!n || n === me) return J({ e: "bad" }, 400);
     await st.setJSON("rp/" + Date.now() + "-" + rid(), { t: Date.now(), by: me, u: n, id: S(id, 40), nom: S(nom, 80), why: S(v, 40), m: S(m, 300) });
     return J({ ok: 1 });
+  }
+  if (a === "reports" || a === "rpdel") {
+    if (!ENV.ADMIN || ENV.ADMIN !== me) return J({ e: "Réservé à l’administrateur." }, 403);
+    if (a === "rpdel") { if (/^[0-9]+-[a-z0-9]+$/.test(String(id || ""))) await st.delete("rp/" + id); return J({ ok: 1 }); }
+    const ks = ((await st.list({ prefix: "rp/" })).blobs || []).map((b) => b.key).sort().reverse().slice(0, 100);
+    const l = await Promise.all(ks.map(async (k) => ({ ...(await st.get(k, { type: "json" })), k: k.slice(3) })));
+    return J({ list: l });
   }
   if (a === "setpub") {
     self.pub = !!v;
@@ -600,6 +643,15 @@ const handle = async (req) => {
   }
 
   /* ----- compte ----- */
+  if (a === "rcgen") {
+    if (await limit("rcg:" + me, 6, 36e5)) return TOO();
+    if (Date.now() - (self.cg || 0) > 6e5 && !timingSafeEqual(await hash(old || "", self.salt), Buffer.from(self.h, "hex"))) return J({ e: "Mot de passe incorrect." }, 401);
+    const codes = Array.from({ length: 8 }, rcNew);
+    self.rs = randomBytes(8).toString("hex");
+    self.rc = await Promise.all(codes.map((c) => sha(self.rs + rcNorm(c))));
+    await saveU(me, self);
+    return J({ codes });
+  }
   if (a === "logoutall" || a === "chpw") {
     if (a === "chpw") {
       if (await limit("chpw:" + me, 8, 9e5)) return TOO();
@@ -662,13 +714,13 @@ const handle = async (req) => {
 
 /* CORS : uniquement pour les applications mobiles (Capacitor) et le site lui-même */
 const ORIGINS = ["capacitor://localhost", "ionic://localhost", "https://localhost", "http://localhost"];
-export const onRequest = async ({ request: req, env }) => {
+export const onRequest = async ({ request: req, env, ctx }) => {
   ENV = env; if (!SEC) SEC = env.AUTH_SECRET || "";
   if (!env.DB) return J({ e: "Base de données non reliée (binding DB manquant)." }, 500);
   const o = req.headers.get("origin") || "";
   const cors = ORIGINS.includes(o) ? { "access-control-allow-origin": o, "access-control-allow-methods": "POST, OPTIONS", "access-control-allow-headers": "content-type", "access-control-max-age": "86400", vary: "origin" } : {};
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
-  const r = await handle(req);
+  const r = await handle(req, ctx);
   for (const [k, v] of Object.entries(cors)) r.headers.set(k, v);
   return r;
 };
