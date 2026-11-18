@@ -407,9 +407,10 @@ dialog:not([open])::backdrop{opacity:0}
 .card,.mc{position:relative}
 .wsh{position:absolute;right:8px;top:8px;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(16,16,16,.55);-webkit-backdrop-filter:blur(10px) saturate(1.4);backdrop-filter:blur(10px) saturate(1.4);color:#fff;border:1px solid rgba(255,255,255,.28);cursor:pointer;z-index:2;transition:transform .15s,background .2s}
 .wsh::after{content:"";position:absolute;inset:-8px}
-.wsh svg{width:15px;height:15px;display:block}
+.wsh{box-sizing:border-box;padding:0;line-height:0;font-size:0}
+.wsh svg{position:absolute;left:50%;top:50%;width:16px;height:16px;margin:-8px 0 0 -8px;display:block}
 .wsh:active{transform:scale(.9)}
-.wsh.on{background:#FF4FA9;color:#101010;border-color:transparent;cursor:default}
+.wsh.on{background:#FF4FA9;color:#fff;border-color:transparent;cursor:default}
 </style>
 <script>["gesturestart","gesturechange","gestureend"].forEach(t=>document.addEventListener(t,e=>e.preventDefault()));document.addEventListener("touchmove",e=>{if(e.touches.length>1&&!(e.target.closest&&e.target.closest(".leaflet-container")))e.preventDefault()},{passive:false});</script></head>
 <body>
