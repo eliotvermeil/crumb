@@ -1,0 +1,8 @@
+{
+  "appId": "com.tonnom.crumb",
+  "appName": "Crumb",
+  "webDir": "www",
+  "backgroundColor": "#FFF4FB",
+  "ios": { "contentInset": "always" },
+  "android": { "allowMixedContent": false }
+}
