@@ -368,7 +368,45 @@ dialog::backdrop{background:rgba(10,10,9,.42);backdrop-filter:blur(3px);-webkit-
 .mc span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;-webkit-line-clamp:unset}
 .g4>div{min-width:0}.g4 .mc+div,.g4 small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .xa::after{content:"";display:inline-block;width:.85em;height:.85em;margin-left:.3em;vertical-align:-.08em;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23000%27 stroke-width=%273%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27M6 18L18 6M8 6h10v10%27/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23000%27 stroke-width=%273%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27M6 18L18 6M8 6h10v10%27/%3E%3C/svg%3E") center/contain no-repeat}html{-webkit-text-size-adjust:100%}html,body{overflow-x:hidden;overflow-x:clip;max-width:100%;overscroll-behavior-x:none;position:relative}.pl{color:inherit;text-decoration:none;cursor:pointer;-webkit-tap-highlight-color:transparent}.pl:active{opacity:.6}
-#dCr #crF img{pointer-events:none}#crZ{width:100%;margin:6px 0 10px;accent-color:#FF4FA9}.pbio{text-align:center;font-size:15px;line-height:1.45;margin:10px auto 0;max-width:34ch;white-space:pre-line;overflow-wrap:anywhere}#bioT{width:100%;min-height:110px;resize:none;font:inherit}.bioc{text-align:right;font-size:12px;opacity:.6;margin-top:4px}</style>
+#dCr #crF img{pointer-events:none}#crZ{width:100%;margin:6px 0 10px;accent-color:#FF4FA9}.pbio{text-align:center;font-size:15px;line-height:1.45;margin:10px auto 0;max-width:34ch;white-space:pre-line;overflow-wrap:anywhere}#bioT{width:100%;min-height:110px;resize:none;font:inherit}.bioc{text-align:right;font-size:12px;opacity:.6;margin-top:4px}
+/* transitions fluides */
+#view.fi{animation:fi .2s ease-out}
+#view.fi .card,#view.fi .mc,#view.fi .fr,#view.fi .rc,#view.fi .stat,#view.fi .badgecard,#view.fi .bub,#view.fi .br,#view.fi .recap{animation:rise .3s cubic-bezier(.2,.8,.2,1) both!important;animation-delay:calc(var(--i,0)*20ms)!important}
+.recap,.stat,.rc,.fr{animation:none}
+html[data-vt] #view{view-transition-name:vw}
+::view-transition-group(root),::view-transition-old(root),::view-transition-new(root){animation:none}
+::view-transition-old(vw){animation:vtO .12s ease-in both}
+::view-transition-new(vw){animation:vtI .3s cubic-bezier(.2,.8,.2,1) both}
+html[data-vt=fwd]::view-transition-new(vw){--vx:26px}
+html[data-vt=back]::view-transition-new(vw){--vx:-26px}
+@keyframes vtO{to{opacity:0}}
+@keyframes vtI{from{opacity:0;transform:translate(var(--vx,0px),8px)}}
+dialog{transition:transform .24s cubic-bezier(.4,0,.9,.4),opacity .2s ease,overlay .24s allow-discrete,display .24s allow-discrete}
+dialog:not([open]){transform:translateY(48px);opacity:0}
+dialog::backdrop{transition:opacity .24s ease,overlay .24s allow-discrete,display .24s allow-discrete}
+dialog:not([open])::backdrop{opacity:0}
+@starting-style{dialog[open]::backdrop{opacity:0}}
+.pillbtn:active,.ch:active,.tab:active{transform:scale(.96)}
+@media (prefers-reduced-motion:reduce){::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}
+
+/* amis / sections */
+.subt{margin:3px 0 0;font:400 14px/1.35 var(--ui);color:var(--mute)}body.mapmode .subt{display:none}
+.sgm{display:flex;gap:4px;padding:4px;margin:12px 0 2px;border:1px solid var(--line);border-radius:16px;background:var(--bg)}
+.sgm button{flex:1;border:0;background:none;color:var(--mute);font:700 14px var(--ui);padding:10px 6px;border-radius:12px;min-height:44px;cursor:pointer;transition:background .2s,color .2s}
+.sgm button.on{background:var(--ink);color:var(--bg)}
+.sb{font-style:normal;margin-left:6px;background:#FF4FA9;color:#101010;border-radius:99px;font-size:11px;padding:2px 7px}
+.gh{margin:26px 0 10px;display:flex;flex-direction:column;gap:3px}.gh b{font:800 19px var(--hv);letter-spacing:-.03em}.gh span{font:400 13px/1.35 var(--ui);color:var(--mute)}
+.rw .lft{display:flex;align-items:center;gap:10px;flex:1;min-width:0;cursor:pointer}.rw>.mid{flex:1}
+.ava{width:38px;height:38px;border-radius:50%;background:#FF4FA9;color:#101010;font:800 16px var(--hv);display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
+.rk{width:26px;font:800 16px var(--hv);color:var(--mute);text-align:center}
+.mid{display:flex;flex-direction:column;min-width:0}.mid small{color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rw .ago{color:var(--mute);font-size:12px;white-space:nowrap}
+.es{border:1.5px dashed var(--line);border-radius:18px;padding:22px 16px;text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center}.es i{color:var(--mute);font-style:normal;font-size:14px}.es .pillbtn{margin-top:8px}
+.grp.req{border:1.5px solid #FF4FA9;border-radius:18px;padding:2px 12px 10px;background:rgba(255,79,169,.07);margin-top:16px}.grp.req .gh{margin-top:12px}
+.acct{background:transparent}
+.card,.mc{position:relative}
+.wsh{position:absolute;right:8px;top:8px;width:32px;height:32px;border-radius:50%;background:#FF4FA9;color:#101010;font:700 24px/31px var(--ui);text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.2);cursor:pointer;z-index:2}
+.wsh.on{background:var(--ink);color:var(--bg);font-size:15px;cursor:default}
+</style>
 <script>["gesturestart","gesturechange","gestureend"].forEach(t=>document.addEventListener(t,e=>e.preventDefault()));document.addEventListener("touchmove",e=>{if(e.touches.length>1&&!(e.target.closest&&e.target.closest(".leaflet-container")))e.preventDefault()},{passive:false});</script></head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="lg" viewBox="0 0 536.82 131.24"><rect width="131.24" height="131.24" rx="32.02" fill="var(--acc)"/><polygon fill="#fff" points="84.34 19.42 91.05 40.07 112.77 40.07 95.2 52.83 101.91 73.48 84.34 60.72 66.78 73.48 73.49 52.83 55.92 40.07 77.64 40.07 84.34 19.42"/><g fill="currentColor"><path d="M180.71,65.38c0-4.08.72-7.78,2.16-11.09s3.41-6.14,5.9-8.5c2.5-2.35,5.44-4.16,8.82-5.44,3.38-1.27,7-1.91,10.84-1.91s7.66.64,11.16,1.91c3.5,1.27,6.43,2.99,8.78,5.15l-10.51,12.67c-.96-1.25-2.16-2.2-3.6-2.84-1.44-.65-3.05-.97-4.82-.97-1.44,0-2.78.25-4.03.76-1.25.5-2.34,1.24-3.28,2.2-.94.96-1.67,2.12-2.2,3.49-.53,1.37-.79,2.89-.79,4.57s.28,3.18.83,4.5c.55,1.32,1.3,2.46,2.23,3.42.94.96,2.03,1.69,3.28,2.2,1.25.5,2.57.76,3.96.76,1.97,0,3.66-.41,5.08-1.22,1.42-.82,2.53-1.78,3.35-2.88l10.51,12.6c-2.3,2.3-5.14,4.14-8.5,5.51-3.36,1.37-7.18,2.05-11.45,2.05-3.84,0-7.45-.65-10.84-1.94s-6.32-3.13-8.82-5.51c-2.5-2.38-4.46-5.21-5.9-8.5s-2.16-6.95-2.16-10.98Z"/><path d="M244.51,39.89h21.96c2.5,0,4.98.25,7.45.76,2.47.5,4.68,1.39,6.62,2.66,1.94,1.27,3.52,2.98,4.72,5.11,1.2,2.14,1.8,4.81,1.8,8.03s-.77,5.87-2.3,8.24-3.73,4.21-6.6,5.51l12.93,20.66h-19.68l-9.77-18.22h-.5v18.22h-16.63v-50.98ZM260.99,61.42h3.36c.57,0,1.2-.05,1.89-.14.69-.1,1.33-.3,1.93-.61.59-.31,1.1-.74,1.5-1.3.41-.55.61-1.28.61-2.2s-.17-1.63-.5-2.16c-.33-.53-.76-.92-1.29-1.19-.52-.26-1.1-.43-1.71-.5-.62-.07-1.19-.11-1.71-.11h-4.07v8.21Z"/><path d="M330.19,92.31c-3.99,0-7.45-.55-10.4-1.66-2.95-1.1-5.41-2.62-7.38-4.54-1.97-1.92-3.43-4.19-4.39-6.8-.96-2.62-1.44-5.44-1.44-8.46v-30.96h17.14v29.09c0,2.45.59,4.36,1.76,5.72,1.17,1.37,2.84,2.05,5,2.05s3.83-.68,5-2.05c1.18-1.37,1.76-3.28,1.76-5.72v-29.09h17.06v30.96c0,3.02-.52,5.84-1.55,8.46-1.03,2.62-2.56,4.88-4.57,6.8-2.02,1.92-4.53,3.43-7.52,4.54-3,1.1-6.49,1.66-10.48,1.66Z"/><path d="M389.66,62.07l.79,28.8h-15.98v-50.98h22.42l9.23,27.43h.36l8-27.43h23.14v50.98h-16.7l.5-28.66-.43-.07-9.5,28.73h-12.1l-9.36-28.8h-.36Z"/><path d="M491.75,64.37c1.2.29,2.38.76,3.53,1.4,1.15.65,2.18,1.46,3.1,2.45.91.98,1.63,2.12,2.16,3.42.53,1.3.79,2.74.79,4.32,0,2.78-.56,5.12-1.69,7.02s-2.62,3.43-4.46,4.61c-1.85,1.18-3.96,2.02-6.34,2.52s-4.81.76-7.31.76h-23.11v-50.98h20.95c2.06,0,4.26.16,6.59.47,2.33.31,4.48.94,6.44,1.87,1.97.94,3.6,2.3,4.9,4.1,1.3,1.8,1.94,4.17,1.94,7.09,0,2.74-.68,4.99-2.05,6.77-1.37,1.78-3.18,3.1-5.44,3.96v.22ZM474.4,53.21v6.26h4.61c1.2,0,2.18-.28,2.95-.83.77-.55,1.15-1.4,1.15-2.56,0-.96-.41-1.68-1.22-2.16-.82-.48-1.9-.72-3.24-.72h-4.25ZM474.4,70.49v6.91h5.11c1.34,0,2.44-.3,3.28-.9.84-.6,1.26-1.48,1.26-2.63,0-.67-.18-1.22-.54-1.66-.36-.43-.8-.78-1.33-1.04-.53-.26-1.09-.44-1.69-.54-.6-.1-1.17-.14-1.69-.14h-4.39Z"/><path d="M509.45,36.54c0-1.9.36-3.67,1.08-5.31.72-1.64,1.7-3.08,2.93-4.3,1.24-1.22,2.69-2.19,4.36-2.9,1.67-.71,3.45-1.06,5.35-1.06s3.64.35,5.29,1.06,3.1,1.67,4.34,2.9c1.24,1.22,2.21,2.66,2.93,4.3.72,1.64,1.08,3.41,1.08,5.31s-.36,3.63-1.08,5.27c-.72,1.64-1.7,3.08-2.93,4.3-1.24,1.22-2.68,2.18-4.34,2.88s-3.42,1.04-5.29,1.04-3.68-.35-5.35-1.04c-1.67-.7-3.12-1.66-4.36-2.88-1.24-1.22-2.21-2.66-2.93-4.3-.72-1.64-1.08-3.4-1.08-5.27ZM511.62,36.54c0,1.58.29,3.07.88,4.46.59,1.39,1.4,2.61,2.43,3.65s2.24,1.87,3.64,2.47c1.39.6,2.88.9,4.46.9s3.08-.3,4.48-.9c1.4-.6,2.64-1.42,3.71-2.47s1.91-2.26,2.52-3.65c.61-1.39.92-2.88.92-4.46s-.3-3.08-.9-4.48c-.6-1.4-1.42-2.63-2.47-3.67s-2.26-1.87-3.65-2.48c-1.39-.61-2.88-.92-4.46-.92s-3.08.31-4.48.92c-1.4.61-2.63,1.44-3.67,2.48-1.04,1.04-1.87,2.27-2.48,3.67-.61,1.4-.92,2.9-.92,4.48ZM530.19,30.71c-.7-.86-1.61-1.54-2.74-2.02-1.13-.48-2.32-.72-3.56-.72s-2.38.2-3.46.59c-1.08.4-2.02.97-2.83,1.71-.8.74-1.45,1.64-1.93,2.7-.48,1.06-.72,2.24-.72,3.56s.23,2.59.7,3.65c.47,1.07,1.11,1.97,1.93,2.7.82.73,1.76,1.29,2.84,1.67,1.08.38,2.23.58,3.46.58s2.41-.21,3.49-.63,2-1.01,2.77-1.78l-3.31-3.17c-.34.41-.76.71-1.28.9-.52.19-1.05.29-1.6.29-.62,0-1.17-.13-1.64-.38s-.86-.58-1.17-.97c-.31-.4-.55-.85-.7-1.35-.16-.5-.23-1.02-.23-1.55s.08-1.04.23-1.55.38-.95.68-1.35.67-.71,1.1-.95c.43-.24.94-.36,1.51-.36s1.15.1,1.66.31c.5.2.92.53,1.26.99l3.53-2.88Z"/></g></symbol></svg>
@@ -378,7 +416,7 @@ dialog::backdrop{background:rgba(10,10,9,.42);backdrop-filter:blur(3px);-webkit-
   <div class="sp-tag">KEEP A TASTE OF EVERYWHERE.</div>
 </div></div>
 <div class="wrap">
-  <div class="head"><div><svg class="wmk" viewBox="0 0 536.82 131.24" role="img" aria-label="Crumb"><use href="#lg"/></svg><h1 class="ttl" id="ttl">Mes spots</h1></div><div class="hb"><button class="bell" id="bell" aria-label="Notifications"><svg viewBox="0 0 24 24"><path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 2h-15z"/><path d="M10 21h4"/></svg><i class="bdg" id="bellb" hidden></i></button><button class="pillbtn" id="filterBtn">Filtrer</button></div></div><div class="syn" id="syn" role="status" aria-live="polite"></div>
+  <div class="head"><div><svg class="wmk" viewBox="0 0 536.82 131.24" role="img" aria-label="Crumb"><use href="#lg"/></svg><h1 class="ttl" id="ttl">Mes spots</h1><p class="subt" id="subt"></p></div><div class="hb"><button class="bell" id="bell" aria-label="Notifications"><svg viewBox="0 0 24 24"><path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 2h-15z"/><path d="M10 21h4"/></svg><i class="bdg" id="bellb" hidden></i></button><button class="pillbtn" id="filterBtn">Filtrer</button></div></div><div class="syn" id="syn" role="status" aria-live="polite"></div>
   <input id="q" class="sbar" type="search" placeholder="Rechercher un resto, une ville…" style="display:none">
   <div id="banner"></div>
   <div id="view"></div>
@@ -515,7 +553,7 @@ function renderSpots(){
   if(!viewing)h+=modeChips();
   h+=n&&!todoMode?`<div class="meta"><span class="tag"><b>${n}</b> spot${n>1?"s":""}</span><span class="tag"><b>${avg}</b> ★ moyenne</span>${top?`<span class="tag"><b>${flag(top[0])}</b> ${esc(top[0])}</span>`:""}${fCuis!=="Toutes"?`<span class="tag" data-act="clear" style="cursor:pointer">${esc(fCuis)} ✕</span>`:""}</div>`:"";
   if(!l.length)h+=n?`<div class="empty"><b>Rien ici</b><i>Essaie un autre filtre.</i></div>`:`<div class="empty"><b>${viewing?"Rien pour l’instant":todoMode?"Ta liste est vide":"Ton carnet est vide"}</b><i>${viewing?"Cet ami n’a encore rien ajouté.":todoMode?"Garde ici les adresses à tester depuis « Pour toi ».":"Ajoute le dernier resto où tu as mangé."}</i></div>`;
-  else h+='<div class="cols">'+l.map(x=>{const c=col(x.cuisine);return `<button class="card" data-o="${esc(x.id)}" style="--cb:${c.b};--cf:${c.f}"><div class="top"><span>${esc(x.nom)}</span>${x.note?`<span class="pill">★ ${fmt(x.note)}</span>`:x.todo?`<span class="pill">À tester</span>`:""}</div><div class="img">${x.photo?`<img loading="lazy" decoding="async" src="${x.photo}" alt="">`:flag(x.cuisine)}</div><h3>${esc(x.cuisine)}</h3></button>`}).join("")+"</div>";
+  else h+='<div class="cols">'+l.map(x=>{const c=col(x.cuisine);return `<button class="card" data-o="${esc(x.id)}" style="--cb:${c.b};--cf:${c.f}"><div class="top"><span>${esc(x.nom)}</span>${x.note?`<span class="pill">★ ${fmt(x.note)}</span>`:x.todo?`<span class="pill">À tester</span>`:""}</div><div class="img">${x.photo?`<img loading="lazy" decoding="async" src="${x.photo}" alt="">`:flag(x.cuisine)}</div><h3>${esc(x.cuisine)}</h3>${viewing?wsh(x):""}</button>`}).join("")+"</div>";
   if(!n&&!viewing&&!todoMode)h+=`<div class="acts" style="justify-content:center"><button class="pri" data-act="addfirst" style="max-width:300px">Ajouter mon premier resto</button></div>`;
   $("view").innerHTML=h;
 }
@@ -616,7 +654,7 @@ async function act(a,u){
   authErr="";
   try{if(a==="addf"){const r=await api("add",{u:$("af").value});$("af").value="";authErr="Demande envoyée (ou ami ajouté si vous vous étiez ajoutés mutuellement).";await loadSoc()}
     if(a==="acc"){await api("acc",{u});await loadSoc()}
-    if(a==="viewf"){const r=await api("view",{u});viewing={u,items:v2(r.items),albums:r.albums||[],prof:r.prof||{},page:"profile",friend:r.friend,following:r.following};fCuis="Toutes";delete relC[u];render()}}
+    if(a==="viewf"){const r=await api("view",{u});nav.length=0;nav.push({tab,viewing:null});viewing={u,items:v2(r.items),albums:r.albums||[],prof:r.prof||{},page:"profile",friend:r.friend,following:r.following,limited:!!r.limited,req:!!r.req};fCuis="Toutes";delete relC[u];render()}}
   catch(e){authErr=e.message}
   if(tab==="amis"&&!viewing)renderAmis();
 }
@@ -642,12 +680,25 @@ function toast(t){const e=$("toast");e.style.pointerEvents="none";e.textContent=
 const here=()=>new Promise((ok,ko)=>navigator.geolocation?navigator.geolocation.getCurrentPosition(p=>ok({lat:p.coords.latitude,lon:p.coords.longitude}),ko,{enableHighAccuracy:true,timeout:10000,maximumAge:60000}):ko(new Error("geo")));
 function topCuis(){const sc={};live().filter(x=>!x.todo).forEach(x=>{const c=CUIS.find(c=>c[0]===x.cuisine&&c[2]);if(c)sc[c[0]]=(sc[c[0]]||0)+(x.note||6)});return Object.entries(sc).sort((a,b)=>b[1]-a[1]).slice(0,3).map(e=>CUIS.find(c=>c[0]===e[0]))}
 const geoPts=()=>live().filter(x=>x.lat!=null&&x.lon!=null);
-function wishFrom(x){persist({id:rid(),nom:x.nom,cuisine:x.cuisine,ville:x.ville||"",lien:su(x.lien,mapsLink(x.nom,x.ville||x.ad||"")),lat:x.lat??null,lon:x.lon??null,todo:true,note:0,avis:"",photo:"",date:""});toast("Ajouté à « À tester »")}
+const hasMine=x=>{const k=(x.nom||"").trim().toLowerCase(),v=(x.ville||"").trim().toLowerCase();return items.find(z=>!z.del&&!z.album&&(z.nom||"").trim().toLowerCase()===k&&(!v||!z.ville||z.ville.trim().toLowerCase()===v))};
+const wsh=x=>{const m=hasMine(x);return m?`<span class="wsh on" role="img" aria-label="${m.todo?"Déjà dans À tester":"Déjà dans ton carnet"}">✓</span>`:`<span class="wsh" role="button" tabindex="0" data-x="wishv" data-id="${esc(x.id)}" aria-label="Ajouter à mes restos à tester">+</span>`};
+function wishFrom(x){const ex=hasMine(x);if(ex){toast(ex.todo?"Déjà dans « À tester »":"Déjà dans ton carnet");return}persist({id:rid(),nom:x.nom,cuisine:x.cuisine,ville:x.ville||"",lien:su(x.lien,mapsLink(x.nom,x.ville||x.ad||"")),lat:x.lat??null,lon:x.lon??null,todo:true,note:0,avis:"",photo:"",date:""});toast("Ajouté à « À tester »")}
 
 /* ---- rendu global ---- */
+const VT=!!document.startViewTransition&&!matchMedia("(prefers-reduced-motion:reduce)").matches;
+let lastDepth=0,lastTab="",vtGo=false;
+const depthNow=()=>(viewing?1:0)+(viewing&&viewing.page==="list"?1:0)+(chat?1:0)+(albView?1:0);
 function render(){
+  const k=[tab,listMode,albView,viewing&&viewing.u,viewing&&viewing.page,chat&&chat.u].join("|");
+  if(!VT||!lastKey||k===lastKey||tab==="map"||lastTab==="map"||document.hidden||document.querySelector("dialog[open]")){_render();return}
+  const dep=depthNow(),d=dep>lastDepth?"fwd":dep<lastDepth?"back":"tab",root=document.documentElement;
+  root.dataset.vt=d;vtGo=true;
+  try{const t=document.startViewTransition(()=>{_render()});t.finished.finally(()=>{delete root.dataset.vt})}catch(e){delete root.dataset.vt;_render()}
+}
+function _render(){
   document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.t===tab));
   $("ttl").textContent=TT[tab];
+  $("subt").textContent=(viewing||chat)?"":(tab==="spots"?({faits:"Les restos que tu as déjà testés, avec ta note.",todo:"Les adresses que tu veux essayer un jour.",albums:"Tes restos rangés par thème.",reco:"Des idées de restos selon tes goûts."}[listMode]||""):({map:"Tes spots et les bonnes adresses autour de toi.",amis:"Tes amis, leurs découvertes et vos messages.",profil:"Ton profil, tes favoris, tes badges et tes réglages."}[tab]||""));
   const listy=(tab==="spots"&&!viewing&&(listMode==="faits"||listMode==="todo"))||(viewing&&viewing.page==="list");
   const pr=tab==="profil"&&!viewing;$("filterBtn").style.display=listy||pr?"":"none";$("filterBtn").textContent=pr?"Réglages":"Filtrer";$("filterBtn").setAttribute("aria-label",pr?"Ouvrir les réglages":"Filtrer la liste");
   $("add").style.display=tab==="spots"&&!viewing?"":"none";
@@ -657,7 +708,11 @@ function render(){
   (viewing?(viewing.page==="list"?renderSpots:()=>renderProfile(viewing)):{spots:renderSpots,map:renderMap,surprise:renderSurprise,amis:renderAmis,profil:()=>renderProfile(null)}[tab])();
   if(tab==="profil"&&!viewing)countUp();
   const key=[tab,listMode,albView,viewing&&viewing.u,viewing&&viewing.page,chat&&chat.u].join("|");
-  if(key!==lastKey){const v=$("view");v.classList.remove("fi");void v.offsetWidth;v.classList.add("fi");[...v.querySelectorAll(".card,.mc,.fr,.rc,.stat,.badgecard,.bub,.br")].slice(0,14).forEach((e,i)=>e.style.setProperty("--i",i));lastKey=key}
+  const dpn=depthNow();
+  if(key!==lastKey&&(tab!==lastTab||dpn!==lastDepth))scrollTo(0,0);
+  if(key!==lastKey&&vtGo){vtGo=false;lastKey=key}
+  else if(key!==lastKey){const v=$("view");v.classList.remove("fi");void v.offsetWidth;v.classList.add("fi");[...v.querySelectorAll(".card,.mc,.fr,.rc,.stat,.badgecard,.bub,.br")].slice(0,10).forEach((e,i)=>e.style.setProperty("--i",i));lastKey=key}
+  lastTab=tab;lastDepth=dpn;
   updBadge();
 }
 
@@ -940,18 +995,38 @@ function poll(){
 const RX=["❤️","🔥","🤤","👀"];
 const rxTxt=rx=>Object.entries(rx||{}).map(([u,e])=>e+" @"+esc(u)).join(" · ");
 async function loadBoard(){try{boardRows=(await api("board")).rows;if(tab==="amis"&&!viewing&&!chat)renderAmis()}catch(e){}}
+let amTab="";
+XH.amt=b=>{amTab=b.dataset.k;renderAmis();scrollTo(0,0)};
 function renderAmis(){
   if(!tok){$("view").innerHTML=`<div class="ser" style="margin:12px 0 4px">${REF?`<div class="note" style="color:var(--ink)"><b>@${esc(REF)}</b> t’invite sur Crumb. Crée ton compte pour le retrouver.</div>`:""}Crée un compte pour retrouver tes spots partout et les partager avec tes amis.</div><label>Pseudo</label><input id="au" autocapitalize="none" autocomplete="username" placeholder="Ton pseudo"><label>Mot de passe</label><input id="ap" type="password" autocomplete="new-password" placeholder="8 caractères minimum"><div style="text-align:right;margin-top:6px"><span class="lk" data-x="forgot">Mot de passe oublié ?</span></div>${authErr?`<div class="note" style="color:#e4572e">${esc(authErr)}</div>`:""}<label class="ck"><input type="checkbox" id="cg"><span>J’ai 15 ans ou plus et j’accepte les <span class="lk" data-x="lg" data-k="cgu">conditions d’utilisation</span> et la <span class="lk" data-x="lg" data-k="priv">politique de confidentialité</span> (pour créer un compte).</span></label><div class="acts"><button data-act="login">Connexion</button><button class="pri" data-act="signup">Créer mon compte</button></div><div class="note" style="margin-top:12px">N’utilise pas un mot de passe que tu emploies ailleurs. Tes spots restent aussi disponibles sans compte, sur cet appareil.</div>`;return}
   if(chat)return renderChat();
   const th=Object.fromEntries(threads.map(t=>[t.u,t])),fr=[...soc.fr].sort((a,b)=>((th[b]||{}).ts||0)-((th[a]||{}).ts||0));
-  $("view").innerHTML=`<div class="fr" style="margin-top:8px"><span>Connecté : <b>@${esc(me)}</b></span><button class="pillbtn sm" data-act="logout">Déconnexion</button></div>
-  ${soc.rq.length?`<label>Demandes reçues</label>`+soc.rq.map(u=>`<div class="fr"><b>${PL(u)}</b><button class="pillbtn sm" data-act="acc" data-u="${esc(u)}">Accepter</button></div>`).join(""):""}
-  <label>Mes amis</label>${fr.length?fr.map(u=>{const t=th[u],un=t&&t.un>0;return `<div class="fr"><span data-x="chat" data-u="${esc(u)}" style="flex:1;cursor:pointer;min-width:0"><b>${PL(u)}</b>${un?'<span class="dot"></span>':""}<small style="display:block;color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t?(t.from===me?"Toi : ":"")+esc(t.m||""):"Écrire un message"}</small></span><button class="pillbtn sm" data-act="viewf" data-u="${esc(u)}">Profil</button></div>`}).join(""):`<div class="note">Pas encore d’amis. Ajoute un pseudo ci-dessous : il verra ta demande dans son onglet Amis.</div>`}
-  <label>Ajouter un ami</label><div class="row"><input id="af" autocapitalize="none" placeholder="Son pseudo"><button class="pillbtn" data-act="addf" style="flex:0 0 auto">Ajouter</button></div>${authErr?`<div class="note">${esc(authErr)}</div>`:""}
-  <label>Découvrir des profils publics</label><div class="row"><input id="du" autocapitalize="none" placeholder="Chercher un pseudo"><button class="pillbtn" data-x="dsearch" style="flex:0 0 auto">Chercher</button></div>${discRes?(discRes.length?discRes.map(u=>`<div class="fr"><b>${PL(u)}</b><button class="pillbtn sm" data-x="dview" data-u="${esc(u)}">Profil</button></div>`).join(""):'<div class="note">Aucun profil public trouvé.</div>'):""}
-  ${soc.fo&&soc.fo.length?`<label>Mes abonnements</label>`+soc.fo.map(u=>`<div class="fr"><b>${PL(u)}</b><button class="pillbtn sm" data-x="dview" data-u="${esc(u)}">Profil</button></div>`).join(""):""}
-  ${boardRows.length>1?`<label>Classement entre amis</label>`+boardRows.slice(0,6).map((r,i)=>`<div class="fr"><span><b>${i+1}.</b> ${PL(r.u)}${r.u===me?" (toi)":""}<small style="display:block;color:var(--mute)">${r.c} cuisine${r.c>1?"s":""}${r.avg?" · moy. "+fmt(r.avg):""}</small></span><b>${r.n} resto${r.n>1?"s":""}</b></div>`).join(""):""}
-  ${feed.length?`<label>Découvertes de tes amis</label>`+feed.map((x,i)=>`<div class="fr" style="display:block"><div style="display:flex;justify-content:space-between;gap:8px"><span data-x="fx" data-i="${i}" style="cursor:pointer;min-width:0"><b>${PL(x.u)}</b>${x.k==="o"?' <small style="color:var(--mute)">abonnement</small>':""} · ${esc(x.nom)}<small style="display:block;color:var(--mute)">${flag(x.cuisine)} ${esc(x.cuisine)}${x.note?" · ★ "+fmt(x.note):""}${x.prix?" · "+x.prix+" €":""}</small></span><a class="xa" target="_blank" rel="noopener" style="color:var(--ink);font-size:13px;white-space:nowrap" href="${esc(su(x.lien,mapsLink(x.nom,x.ville)))}">Fiche</a></div>${x.avis?`<div style="margin-top:6px;font-size:14px">« ${esc(x.avis)} »</div>`:""}<div class="rxb">${RX.map(e=>`<button class="${(x.rx||{})[me]===e?"on":""}" data-act="rx" data-i="${i}" data-e="${e}">${e}</button>`).join("")}<span style="flex:1"></span><button data-x="fx" data-i="${i}" style="font-size:13px">Commenter${x.cn?" ("+x.cn+")":""}</button><button data-act="wishf" data-i="${i}" style="font-size:13px">À tester</button></div>${Object.keys(x.rx||{}).length?`<small style="display:block;color:var(--mute);margin-top:6px">${rxTxt(x.rx)}</small>`:""}</div>`).join(""):""}`;
+  const unr=threads.reduce((n,t)=>n+(t.un||0),0),A=amTab||(soc.fr.length&&feed.length?"fil":"amis");
+  const sg=(k,t,n)=>`<button role="tab" aria-selected="${A===k}" class="${A===k?"on":""}" data-x="amt" data-k="${k}">${t}${n?`<i class="sb">${n}</i>`:""}</button>`;
+  const gh=(t,hint)=>`<div class="gh"><b>${t}</b>${hint?`<span>${hint}</span>`:""}</div>`;
+  const av=u=>`<span class="ava" aria-hidden="true">${esc((u[0]||"?").toUpperCase())}</span>`;
+  const es=(t,i,btn)=>`<div class="es"><b>${t}</b><i>${i}</i>${btn||""}</div>`;
+  let h=`<div class="sgm" role="tablist" aria-label="Sections">${sg("fil","Fil")}${sg("msg","Messages",unr)}${sg("amis","Amis",soc.rq.length)}</div>`;
+  if(A==="fil"){
+    h+=gh("Découvertes de tes amis","Les restos qu’ils viennent d’ajouter. Réagis, commente ou ajoute-les à tester.");
+    h+=feed.length?feed.map((x,i)=>`<div class="fr" style="display:block"><div style="display:flex;justify-content:space-between;gap:8px"><span data-x="fx" data-i="${i}" style="cursor:pointer;min-width:0"><b>${PL(x.u)}</b>${x.k==="o"?' <small style="color:var(--mute)">abonnement</small>':""} · ${esc(x.nom)}<small style="display:block;color:var(--mute)">${flag(x.cuisine)} ${esc(x.cuisine)}${x.note?" · ★ "+fmt(x.note):""}${x.prix?" · "+x.prix+" €":""}</small></span><a class="xa" target="_blank" rel="noopener" style="color:var(--ink);font-size:13px;white-space:nowrap" href="${esc(su(x.lien,mapsLink(x.nom,x.ville)))}">Fiche</a></div>${x.avis?`<div style="margin-top:6px;font-size:14px">« ${esc(x.avis)} »</div>`:""}<div class="rxb">${RX.map(e=>`<button class="${(x.rx||{})[me]===e?"on":""}" data-act="rx" data-i="${i}" data-e="${e}">${e}</button>`).join("")}<span style="flex:1"></span><button data-x="fx" data-i="${i}" style="font-size:13px">Commenter${x.cn?" ("+x.cn+")":""}</button><button data-act="wishf" data-i="${i}" style="font-size:13px">À tester</button></div>${Object.keys(x.rx||{}).length?`<small style="display:block;color:var(--mute);margin-top:6px">${rxTxt(x.rx)}</small>`:""}</div>`).join(""):es("Rien pour l’instant","Quand tes amis ajoutent un resto, il apparaît ici.",`<button class="pillbtn" data-x="amt" data-k="amis">Ajouter des amis</button>`);
+    if(boardRows.length>1)h+=gh("Classement entre amis","Qui a goûté le plus de cuisines")+boardRows.slice(0,6).map((r,i)=>`<div class="fr rw"><span class="rk">${i+1}</span><span class="mid"><b>${PL(r.u)}${r.u===me?" (toi)":""}</b><small>${r.c} cuisine${r.c>1?"s":""}${r.avg?" · moy. "+fmt(r.avg):""}</small></span><b>${r.n} resto${r.n>1?"s":""}</b></div>`).join("");
+  }else if(A==="msg"){
+    const L=threads.filter(t=>soc.fr.includes(t.u)).sort((x,y)=>(y.ts||0)-(x.ts||0)),nf=soc.fr.filter(u=>!th[u]);
+    h+=gh("Conversations","Touche une conversation pour l’ouvrir");
+    h+=L.length?L.map(t=>`<div class="fr rw" data-x="chat" data-u="${esc(t.u)}" style="cursor:pointer">${av(t.u)}<span class="mid"><b>@${esc(t.u)}${t.un>0?'<span class="dot"></span>':""}</b><small>${t.from===me?"Toi : ":""}${esc(t.m||"")}</small></span><small class="ago">${t.ts?ago(t.ts):""}</small></div>`).join(""):es("Aucune conversation","Écris à un ami, ou envoie-lui une recommandation depuis la fiche d’un resto.");
+    if(nf.length)h+=gh("Écrire à un ami")+`<div class="cg">${nf.map(u=>`<button class="ch" data-x="chat" data-u="${esc(u)}">@${esc(u)}</button>`).join("")}</div>`;
+    if(!soc.fr.length)h+=`<div class="acts" style="justify-content:center;margin-top:12px"><button class="pillbtn" data-x="amt" data-k="amis">Trouver des amis</button></div>`;
+  }else{
+    if(soc.rq.length)h+=`<div class="grp req">${gh("Demandes d’amis","Elles attendent ta réponse")}${soc.rq.map(u=>`<div class="fr rw">${av(u)}<span class="mid"><b>${PL(u)}</b><small>veut devenir ton ami</small></span><button class="pillbtn sm" data-act="acc" data-u="${esc(u)}">Accepter</button></div>`).join("")}</div>`;
+    h+=gh("Mes amis"+(fr.length?" · "+fr.length:""),"Touche un ami pour voir son profil");
+    h+=fr.length?fr.map(u=>`<div class="fr rw"><span class="lft" data-act="viewf" data-u="${esc(u)}">${av(u)}<span class="mid"><b>@${esc(u)}</b><small>Voir le profil</small></span></span><button class="pillbtn sm" data-x="chat" data-u="${esc(u)}">Écrire${(th[u]&&th[u].un>0)?'<span class="dot"></span>':""}</button></div>`).join(""):es("Pas encore d’amis","Ajoute un pseudo ci-dessous : il verra ta demande dans son onglet Amis.");
+    h+=gh("Ajouter un ami","Entre son pseudo exact")+`<div class="row"><input id="af" autocapitalize="none" placeholder="Son pseudo"><button class="pillbtn" data-act="addf" style="flex:0 0 auto">Ajouter</button></div>${authErr?`<div class="note">${esc(authErr)}</div>`:""}`;
+    h+=gh("Trouver des profils publics","Suis des gens sans être amis")+`<div class="row"><input id="du" autocapitalize="none" placeholder="Chercher un pseudo"><button class="pillbtn" data-x="dsearch" style="flex:0 0 auto">Chercher</button></div>${discRes?(discRes.length?discRes.map(u=>`<div class="fr rw"><span class="lft" data-x="dview" data-u="${esc(u)}">${av(u)}<span class="mid"><b>@${esc(u)}</b><small>Profil public</small></span></span><button class="pillbtn sm" data-x="dview" data-u="${esc(u)}">Voir</button></div>`).join(""):'<div class="note">Aucun profil public trouvé.</div>'):""}`;
+    if(soc.fo&&soc.fo.length)h+=gh("Mes abonnements · "+soc.fo.length,"Les profils publics que tu suis")+soc.fo.map(u=>`<div class="fr rw"><span class="lft" data-x="dview" data-u="${esc(u)}">${av(u)}<span class="mid"><b>@${esc(u)}</b><small>Voir le profil</small></span></span><button class="pillbtn sm" data-x="dview" data-u="${esc(u)}">Voir</button></div>`).join("");
+    h+=`<div class="fr acct" style="margin-top:26px"><span>Connecté : <b>@${esc(me)}</b></span><button class="pillbtn sm" data-act="logout">Déconnexion</button></div>`;
+  }
+  $("view").innerHTML=h;
 }
 XH.chat=b=>openChat(b.dataset.u);
 XH.fx=b=>{const x=feed[+b.dataset.i];if(!x)return;if($("dNt").open)$("dNt").close();openFiche({...x,_ext:1},{u:x.u,id:x.id})};
@@ -1088,8 +1163,11 @@ function openFiche(x,ctx){
   $("dDet").showModal();loadCm();
 }
 XH.rxf=async b=>{const x=ficheX,e=b.dataset.e;if(!x)return;try{await api("react",{u:ficheCtx.u,id:ficheCtx.id,e,nom:x.nom});x.rx={...(x.rx||{})};if(x.rx[me]===e)delete x.rx[me];else x.rx[me]=e;document.querySelectorAll('#detBody [data-x="rxf"]').forEach(z=>z.classList.toggle("on",x.rx[me]===z.dataset.e))}catch(er){toast(er.message)}};
+XH.wishv=b=>{const x=(viewing?viewing.items:[]).find(z=>z.id===b.dataset.id);if(x){wishFrom({...x});if(navigator.vibrate)navigator.vibrate(10)}};
+XH.wishdet=b=>{const x=(viewing?viewing.items:[]).find(z=>z.id===b.dataset.id);if(!x)return;wishFrom({...x});b.disabled=true;b.textContent="Dans tes restos à tester"};
 XH.wishfx=()=>{if(ficheX){wishFrom(ficheX);$("dDet").close()}};
-XH.folt=async()=>{if(!viewing)return;try{await api(viewing.following?"unfollow":"follow",{u:viewing.u});viewing.following=!viewing.following;render()}catch(e){toast(e.message)}};
+XH.folt=async()=>{if(!viewing)return;const v=viewing,was=v.following;v.following=!was;delete relC[v.u];delete relC[me];render();try{await api(was?"unfollow":"follow",{u:v.u})}catch(e){v.following=was;render();toast(e.message)}};
+XH.addv=async()=>{if(!viewing)return;const v=viewing,u=v.u;try{await api("add",{u});v.req=true;toast("Demande envoyée à @"+u+".");await loadSoc();if((soc.fr||[]).includes(u)){const r=await api("view",{u});Object.assign(v,{items:v2(r.items),albums:r.albums||[],prof:r.prof||{},friend:true,limited:false,req:false})}render()}catch(e){toast(e.message)}};
 XH.chatv=()=>{if(viewing)openChat(viewing.u)};
 XH.pubt=async()=>{try{const r=await api("setpub",{v:!soc.pub});soc.pub=r.pub;render();toast(r.pub?"Profil public : visible par tous":"Profil privé")}catch(e){toast(e.message)}};
 XH.logall=async()=>{try{const r=await api("logoutall");tok=r.t;lsSet("cr-tok",tok);toast("Autres appareils déconnectés")}catch(e){toast(e.message)}};
@@ -1139,7 +1217,7 @@ const cardHtml=x=>{const c=col(x.cuisine);return `<button class="card" data-o="$
 function modeChips(){
   const nd=live().filter(x=>!x.todo).length,nt=live().filter(x=>x.todo).length,na=albums().length,m=listMode;
   const c=(k,t,n)=>`<button class="ch ${m===k?"on":""}" data-act="mode" data-m="${k}">${t}${n!=null?`<span class="cn">${n}</span>`:""}</button>`;
-  return `<div class="cg" style="margin:8px 0 0;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px">${c("faits","Faits",nd)}${c("todo","À tester",nt)}${c("albums","Albums",na)}${c("reco","Découvrir")}</div>`;
+  return `<div class="cg" style="margin:8px 0 0;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px">${c("faits","Testés",nd)}${c("todo","À tester",nt)}${c("albums","Albums",na)}${c("reco","Découvrir")}</div>`;
 }
 function renderAlbums(){
   const al=albums(),sp=live().filter(x=>!x.todo);
@@ -1194,7 +1272,7 @@ function crop(file,w,h,q){return new Promise(res=>{const r=new FileReader();r.on
 function mini(x,own,i){
   if(!x)return own?`<button class="mc empty" data-slot="${i}">+</button>`:`<button class="mc empty" style="visibility:hidden"></button>`;
   const c=col(x.cuisine);
-  return `<button class="mc" ${own&&i!=null?`data-slot="${i}"`:`data-o="${esc(x.id)}"`} style="--cb:${c.b};--cf:${c.f}"><div class="mi">${x.photo?`<img loading="lazy" decoding="async" src="${x.photo}" alt="">`:flag(x.cuisine)}</div><span>${esc(x.nom)}</span></button>`;
+  return `<button class="mc" ${own&&i!=null?`data-slot="${i}"`:`data-o="${esc(x.id)}"`} style="--cb:${c.b};--cf:${c.f}"><div class="mi">${x.photo?`<img loading="lazy" decoding="async" src="${x.photo}" alt="">`:flag(x.cuisine)}</div><span>${esc(x.nom)}</span>${!own&&viewing?wsh(x):""}</button>`;
 }
 function recapHtml(src){
   const y=String(new Date().getFullYear()),mo=new Date().toISOString().slice(0,7);
@@ -1204,11 +1282,15 @@ function recapHtml(src){
   return `<div class="recap"><small>RÉCAP ${y}</small><p>Cette année, tu as découvert <b>${ys.length}</b> restaurant${ys.length>1?"s":""} dans <b>${yc}</b> cuisine${yc>1?"s":""} différente${yc>1?"s":""}.</p><div class="rcs"><span><b>${ms.length}</b>ce mois-ci</span><span><b>${mavg}</b>note du mois</span><span><b>${fl.length}</b>pays goûtés</span></div>${fl.length?`<div class="flags" aria-label="Pays goûtés">${fl.map(c=>`<i title="${esc(c)}">${flag(c)}</i>`).join("")}</div>`:""}</div>`;
 }
 function renderProfile(v){
+  if(v&&v.limited){
+    const pr=v.prof||{};
+    $("view").innerHTML=`<div style="margin-top:12px"><button class="pillbtn sm" data-act="back">← Retour</button></div><div class="pbn"></div><div class="pav" style="${pr.avatar?`background-image:url('${pr.avatar}')`:""}">${pr.avatar?"":esc((v.u[0]||"?").toUpperCase())}</div><div class="pn">${esc("@"+v.u)}</div><div class="psub">Profil privé</div><div class="cg" style="justify-content:center;margin-top:12px">${v.req?'<button class="ch" disabled>Demande envoyée</button>':'<button class="ch on" data-x="addv">Ajouter en ami</button>'}<button class="ch" data-x="rpu">Signaler</button><button class="ch" data-x="blk">Bloquer</button></div><div class="note" style="text-align:center;margin-top:14px">Ses restos sont visibles par ses amis. Envoie-lui une demande pour les voir.</div>`;
+    return}
   const own=!v,src=(own?live():v.items).filter(x=>!x.todo&&!x.del),p=own?prof:(v.prof||{}),name=own?(me?"@"+me:"Mon profil"):"@"+v.u;
   const by=new Map(src.map(x=>[x.id,x])),fv=[0,1,2,3].map(i=>by.get((p.favs||[])[i]));
   const last=[...src].sort((a,b)=>(b.date||"").localeCompare(a.date||"")||(b.maj||0)-(a.maj||0)).slice(0,4);
   const rated=src.filter(x=>x.note>0),avg=rated.length?fmt((rated.reduce((a,b)=>a+b.note,0)/rated.length).toFixed(1)):"–";
-  let h=own?"":`<div style="margin-top:12px"><button class="pillbtn sm" data-act="back">← Amis</button></div>`;
+  let h=own?"":`<div style="margin-top:12px"><button class="pillbtn sm" data-act="back">← Retour</button></div>`;
   h+=`<div class="pbn" style="${p.banner?`background-image:url('${p.banner}')`:""}">${own?`<button class="pillbtn sm" data-act="pbn" style="position:absolute;right:10px;bottom:10px;background:rgba(0,0,0,.5);color:#fff;border-color:transparent">Bannière</button>`:""}</div>
   <div class="pav" ${own?'data-act="pav"':""} style="${p.avatar?`background-image:url('${p.avatar}')`:""}">${p.avatar?"":own?"＋":esc((name.replace("@","")[0]||"?").toUpperCase())}</div>
   <div class="pn">${esc(name)}</div><div class="psub">${src.length} spot${src.length>1?"s":""} · ${avg} ★ moyenne · ${new Set(src.map(x=>x.cuisine)).size} cuisine${new Set(src.map(x=>x.cuisine)).size>1?"s":""}</div>`
@@ -1216,7 +1298,7 @@ function renderProfile(v){
   if(own)h+=`<div style="text-align:center;margin-top:${p.bio?"4":"10"}px"><button class="ch" data-x="bioedit" style="font-size:13px">${p.bio?"Modifier la bio":"Ajouter une bio"}</button>${tok?`<button class="ch" data-x="shareme" style="font-size:13px;margin-left:6px">Partager mon profil</button>`:""}<button class="ch" data-x="wrap" style="font-size:13px;margin-left:6px">Mon bilan</button></div>`;
   if(tok){const rk=own?me:v.u;relLoad(rk);const rc=relGet(rk),nf=rc?rc.fl.length:"…",ng=rc?rc.fo.length:"…";h+=`<div class="cg" style="justify-content:center;margin:10px 0 0"><button class="ch" data-x="relfl"><b>${nf}</b> abonné${nf===1?"":"s"}</button><button class="ch" data-x="relfo"><b>${ng}</b> abonnement${ng===1?"":"s"}</button></div>`}
 
-  if(!own)h+=`<div class="cg" style="justify-content:center;margin-top:12px">${viewing.friend?'<button class="ch on" data-x="chatv">Écrire</button><button class="ch" data-x="unfr">Retirer</button>':'<button class="ch '+(viewing.following?"on":"")+'" data-x="folt">'+(viewing.following?"Abonné":"S’abonner")+'</button>'}<button class="ch" data-x="rpu">Signaler</button><button class="ch" data-x="blk">Bloquer</button></div>`;
+  if(!own)h+=`<div class="cg" style="justify-content:center;margin-top:12px">${viewing.friend?'<button class="ch on" data-x="chatv">Écrire</button><button class="ch" data-x="unfr">Retirer</button>':'<button class="ch '+(viewing.following?"on":"")+'" data-x="folt">'+(viewing.following?"Abonné":"S’abonner")+'</button>'+(tok?(viewing.req?'<button class="ch" disabled>Demande envoyée</button>':'<button class="ch" data-x="addv">Ajouter en ami</button>'):"")}<button class="ch" data-x="rpu">Signaler</button><button class="ch" data-x="blk">Bloquer</button></div>`;
   if(own&&!tok)h+=`<div class="note" style="text-align:center;margin-top:8px">Crée un compte dans « Amis » pour que tes amis voient ton profil.</div>`;
   if(own||fv.some(Boolean))h+=`<div class="sec"><span>FAVORIS</span>${own?'<span style="letter-spacing:0;font-weight:400">Touche pour choisir</span>':""}</div><div class="g4">${fv.map((x,i)=>mini(x,own,i)).join("")}</div>`;
   h+=`<div class="sec"><span>DERNIERS RESTOS</span></div>`+(last.length?`<div class="g4">${last.map(x=>`<div>${mini(x,false,null)}<div class="ms">${x.note?"★ "+fmt(x.note):"&nbsp;"}</div></div>`).join("")}</div>`:`<div class="note">Aucun resto pour l’instant.</div>`);
@@ -1265,13 +1347,14 @@ function paintPhoto(){const p=$("fPh");p.style.backgroundImage=photo?`url(${phot
 function shrink(file){return new Promise(res=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,520/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*k;c.height=im.height*k;c.getContext("2d").drawImage(im,0,0,c.width,c.height);res(imgData(c,.7))};im.onerror=()=>res("");im.src=r.result};r.onerror=()=>res("");r.readAsDataURL(file)})}
 
 /* ===== pseudos cliquables ===== */
+const nav=[];
 function PL(u){u=String(u==null?"":u);return `<a class="pl" role="link" data-pf="${esc(u)}">@${esc(u)}</a>`}
 async function openProf(u){
   u=String(u||"").replace(/^@/,"").trim().toLowerCase();if(!u)return;
   document.querySelectorAll("dialog[open]").forEach(d=>{try{d.close()}catch(_){}});
   if(u===me){viewing=null;tab="profil";render();return}
   if(!tok){toast("Crée un compte pour voir les profils.");return}
-  try{const r=await api("view",{u});viewing={u,items:v2(r.items),albums:r.albums||[],prof:r.prof||{},page:"profile",friend:r.friend,following:r.following};fCuis="Toutes";delete relC[u];tab="amis";render();scrollTo(0,0)}
+  try{const r=await api("view",{u});if(!viewing)nav.length=0;nav.push({tab,viewing});if(nav.length>20)nav.shift();viewing={u,items:v2(r.items),albums:r.albums||[],prof:r.prof||{},page:"profile",friend:r.friend,following:r.following,limited:!!r.limited,req:!!r.req};fCuis="Toutes";delete relC[u];tab="amis";render()}
   catch(e){toast(e.message||"Profil inaccessible.")}
 }
 document.addEventListener("click",e=>{const p=e.target.closest&&e.target.closest(".pl");if(p){e.preventDefault();e.stopPropagation();openProf(p.dataset.pf)}},true);
@@ -1288,7 +1371,7 @@ function relGet(k){const c=relC[k];if(!c)return null;if(k!==me)return c;const u=
 function openRel(kind){
   const c=relGet(relKey())||{fo:[],fl:[]},l=kind==="fl"?c.fl:c.fo;
   $("rlT").textContent=kind==="fl"?"Abonnés":"Abonnements";
-  $("rlL").innerHTML=l.length?l.map(u=>`<div class="fr"><b>${PL(u)}</b></div>`).join(""):`<div class="note">${kind==="fl"?"Aucun abonné pour l’instant.":"Aucun abonnement pour l’instant."}</div>`;
+  $("rlL").innerHTML=l.length?l.map(u=>`<div class="fr pl" data-pf="${esc(u)}" role="link" tabindex="0" style="cursor:pointer"><b>@${esc(u)}</b><span style="opacity:.4;font-size:22px;line-height:1">›</span></div>`).join(""):`<div class="note">${kind==="fl"?"Aucun abonné pour l’instant.":"Aucun abonnement pour l’instant."}</div>`;
   $("dRel").showModal();
 }
 XH.relfl=()=>openRel("fl");XH.relfo=()=>openRel("fo");
@@ -1354,7 +1437,8 @@ $("wrDl").onclick=async()=>{const b=await wrBlob();if(!b)return;const a=document
 /* ===== hors connexion ===== */
 (()=>{const b=$("offB"),u=()=>{b.style.display=navigator.onLine?"none":""};addEventListener("online",u);addEventListener("offline",u);u()})();
 /* ===== codes de secours / mot de passe oublié / signalements (admin) ===== */
-let rcN=0,admF=false,rcFresh=false,naF=true;
+let rcN=0,admF=false,rcFresh=false,naF=true,nmF=true;
+XH.nmtog=async()=>{try{const r=await api("setna",{k:"nm",v:!nmF});nmF=r.nm!==false;paintSet()}catch(e){toast(e.message)}};
 XH.natog=async()=>{try{const r=await api("setna",{v:!naF});naF=r.na;paintSet()}catch(e){toast(e.message)}};
 function showCodes(codes,intro){
   $("rcI").textContent=intro||"Note ces 8 codes en lieu sûr (capture d’écran, gestionnaire de mots de passe…). Chacun ne marche qu’une fois et permet de changer ton mot de passe si tu l’oublies. En générer de nouveaux annule les anciens.";
@@ -1418,6 +1502,7 @@ const goLink=x=>"https://www.google.com/maps/dir/?api=1&destination="+encodeURIC
 function openDet(id){
   const x=(viewing?viewing.items:items).find(i=>i.id===id);if(!x||x.del)return;const c=col(x.cuisine),fiche=esc(su(x.lien,mapsLink(x.nom,x.ville)));
   $("detBody").innerHTML=`<div class="dimg" style="--cb:${c.b};--cf:${c.f}">${x.photo?`<img loading="lazy" decoding="async" src="${x.photo}" alt="">`:flag(x.cuisine)}</div>${(x.phx||[]).length?`<div style="display:flex;gap:8px;overflow-x:auto;margin:8px 0 0">${x.phx.map(p=>`<img loading="lazy" decoding="async" alt="" src="${p}" style="height:120px;width:120px;object-fit:cover;border-radius:14px;flex:none">`).join("")}</div>`:""}<h2>${esc(x.nom)}</h2><div class="ser">${esc(x.cuisine)}${x.ville?" · "+esc(x.ville):""}${x.date?" · "+new Date(x.date).toLocaleDateString(I18N.loc()):""}${x.prix?" · "+x.prix+" €/pers.":""}</div>${albTags(x)}${(x.occ||[]).length?`<div class="cg" style="margin-top:8px">${x.occ.map(k=>`<span class="ch on" style="pointer-events:none">${(OCC.find(o=>o[0]===k)||[,k])[1]}</span>`).join("")}</div>`:""}${x.must?`<div style="margin-top:12px"><b>À retenir</b> · ${esc(x.must)}</div>`:""}${x.note?`<div style="font-size:min(26px,6.4vw);margin-top:8px">${stars(x.note)} <span style="font-size:16px;color:var(--mute)">${fmt(x.note)}/10</span></div>`:""}${x.avis?`<p style="white-space:pre-wrap;margin:12px 0 0">${esc(x.avis)}</p>`:""}<div id="frv"></div><div class="acts"><a class="xa pillbtn" style="text-decoration:none;text-align:center;flex:1" target="_blank" rel="noopener" href="${esc(goLink(x))}">Y aller</a><a class="xa pillbtn" style="text-decoration:none;text-align:center;flex:1" target="_blank" rel="noopener" href="${fiche}">Voir la fiche</a></div><div class="acts">${navigator.share?`<button data-share="${esc(x.id)}">Partager</button>`:""}${viewing?"":`<button data-alb2="${esc(x.id)}">Albums</button><button data-rec="${esc(x.id)}">Recommander</button>`}</div>${viewing?"":`<div class="acts"><button data-del="${esc(x.id)}">Supprimer</button><button class="pri" data-ed="${esc(x.id)}">${x.todo?"J’y suis allé":"Modifier"}</button></div>`}`;
+  if(viewing)$("detBody").insertAdjacentHTML("beforeend",`<div class="acts" style="margin-top:14px"><button class="pri" data-x="wishdet" data-id="${esc(x.id)}"${hasMine(x)?" disabled":""}>${hasMine(x)?"Déjà dans ta liste":"Ajouter à mes restos à tester"}</button></div>`);
   ficheCtx=null;ficheX=null;
   if(tok){ficheCtx={u:viewing?viewing.u:me,id:x.id,nom:x.nom};ficheX=x;$("detBody").insertAdjacentHTML("beforeend",cmBox())}
   if(!viewing&&!x.todo)$("detBody").insertAdjacentHTML("beforeend",`<div style="margin-top:14px"><button class="ch" data-x="shareres">Partager</button></div>`);
@@ -1453,6 +1538,7 @@ $("fS").onclick=()=>{
   if(isNew&&!it.todo){if(navigator.vibrate)navigator.vibrate(12);if(tok&&soc.fr.length)toastAct("Ajouté à ton carnet","Partager",()=>openRec(it.id));else toast("Ajouté à ton carnet")}
 };
 $("view").onclick=e=>{
+  const wv=e.target.closest('[data-x="wishv"]');if(wv){e.stopPropagation();return XH.wishv(wv)}
   bk(e);
   const o=e.target.closest("[data-o]");if(o)return openDet(o.dataset.o);
   const sl=e.target.closest("[data-slot]");if(sl)return openPick(+sl.dataset.slot);
@@ -1482,7 +1568,7 @@ $("view").onclick=e=>{
   else if(a==="pbn")$("fBn").click();
   else if(a==="all"){if(viewing){viewing.page="list";fCuis="Toutes"}else{tab="spots";listMode="faits"}render()}
   else if(a==="wish"){const r=reco[+b.dataset.i];if(r)persist({id:"r"+Date.now().toString(36)+Math.random().toString(36).slice(2,5),nom:r.nom,ville:lsGet("cr-city")||"",cuisine:r.cuisine,lien:r.lien,lat:r.lat??null,lon:r.lon??null,todo:true,note:0,avis:"",photo:"",date:""})}
-  else if(a==="back"){viewing=null;render();loadSoc()}
+  else if(a==="back"){const s=nav.pop();if(s){tab=s.tab;viewing=s.viewing;render();if(!viewing)loadSoc()}else{viewing=null;render();loadSoc()}}
   else act(a,b.dataset.u);
 };
 $("detBody").onclick=e=>{
@@ -1550,7 +1636,45 @@ setInterval(poll,20000);
     else if(t.id==="inst"){ss("cr-inst-s","1");close()}
   });
 })();
-if("serviceWorker" in navigator)navigator.serviceWorker.register("/sw.js").catch(()=>{});
+
+/* ---- glisser pour fermer / revenir ---- */
+(function(){
+  let d=null,x0=0,y0=0,t0=0,mode=0,dx=0,dy=0,kind="";
+  const ov=(el,top,ax)=>{for(;el&&el!==top&&el.nodeType===1;el=el.parentElement){const c=getComputedStyle(el);if(ax==="x"?(/(auto|scroll)/.test(c.overflowX)&&el.scrollWidth>el.clientWidth+2):(/(auto|scroll)/.test(c.overflowY)&&el.scrollHeight>el.clientHeight+2&&el.scrollTop>0))return true}return false};
+  const SKIP="input,textarea,select,[contenteditable],.leaflet-container,#dCr,#map";
+  addEventListener("touchstart",e=>{
+    d=null;mode=0;if(e.touches.length!==1)return;const t=e.target;if(!t.closest||t.closest(SKIP))return;
+    const dl=t.closest("dialog[open]");
+    if(dl){d=dl;kind="dlg"}
+    else if(!document.querySelector("dialog[open]")&&tab!=="map"&&(viewing||chat||albView)){d=$("view");kind="pg"}
+    if(!d)return;x0=e.touches[0].clientX;y0=e.touches[0].clientY;t0=Date.now();dx=dy=0;
+  },{passive:true});
+  addEventListener("touchmove",e=>{
+    if(!d)return;const t=e.touches[0];dx=t.clientX-x0;dy=t.clientY-y0;
+    if(!mode){
+      if(Math.abs(dx)<12&&Math.abs(dy)<12)return;
+      if(dx>0&&Math.abs(dx)>Math.abs(dy)*1.5&&!ov(e.target,d,"x"))mode=2;
+      else if(kind==="dlg"&&dy>0&&Math.abs(dy)>Math.abs(dx)*1.3&&d.scrollTop<=0&&!ov(e.target,d,"y"))mode=1;
+      else{d=null;return}
+    }
+    if(e.cancelable)e.preventDefault();
+    const v=Math.max(0,mode===1?dy:dx);d.style.transition="none";
+    d.style.transform=mode===1?`translateY(${v}px)`:`translateX(${v}px)`;
+    if(kind==="dlg")d.style.opacity=String(1-Math.min(.55,v/520));
+  },{passive:false});
+  const end=()=>{
+    if(!d||!mode){d=null;return}
+    const el=d,m=mode,k=kind,v=Math.max(0,m===1?dy:dx),fast=v/Math.max(1,Date.now()-t0)>.55;d=null;mode=0;
+    el.style.transition="transform .22s cubic-bezier(.2,.8,.2,1),opacity .2s";
+    if(v>(m===1?110:90)||(fast&&v>40)){
+      if(k==="dlg"){el.style.transform=m===1?"translateY(105%)":"translateX(105%)";el.style.opacity="0";setTimeout(()=>{try{el.close()}catch(e){}el.style.transform=el.style.opacity=el.style.transition=""},210)}
+      else{el.style.transform="";el.style.transition="";const b=el.querySelector('[data-act="back"],[data-act="chatback"],[data-act="vprof"],[data-act="albback"]');if(b)b.click()}
+    }else{el.style.transform="";el.style.opacity="";setTimeout(()=>{el.style.transition=""},230)}
+  };
+  addEventListener("touchend",end,{passive:true});addEventListener("touchcancel",end,{passive:true});
+})();
+if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js").catch(()=>{});navigator.serviceWorker.addEventListener("message",e=>{const g=e.data&&e.data.go;if(!g||!tok)return;try{const c=new URL(g,location.origin).searchParams.get("chat");if(c)openChat(c)}catch(x){}})}
+{const c0=new URLSearchParams(location.search).get("chat");if(c0){try{history.replaceState(null,"","/")}catch(e){}setTimeout(()=>{if(tok)openChat(c0.toLowerCase())},1800)}}
 document.querySelectorAll("dialog").forEach(d=>{const g=d.querySelector(".grab");if(!g)return;let y=null;
   g.addEventListener("touchstart",e=>{y=e.touches[0].clientY;d.style.transition="none"},{passive:true});
   g.addEventListener("touchmove",e=>{if(y!=null)d.style.transform=`translateY(${Math.max(0,e.touches[0].clientY-y)}px)`},{passive:true});
@@ -1576,7 +1700,7 @@ function applyTheme(v){
 const themePref=()=>lsGet("cr-theme")||"auto";
 XH.lang=b=>{I18N.set(b.dataset.v);paintSet();render()};
 XH.theme=b=>{lsSet("cr-theme",b.dataset.v);applyTheme(b.dataset.v);paintSet()};
-function openSet(){paintSet();$("dSet").showModal();if(tok)api("blocks").then(r=>{blkL=r.list||[];rcN=r.rcn||0;admF=!!r.adm;naF=r.na!==false;if($("dSet").open)paintSet()}).catch(()=>{})}
+function openSet(){paintSet();$("dSet").showModal();if(tok)api("blocks").then(r=>{blkL=r.list||[];rcN=r.rcn||0;admF=!!r.adm;naF=r.na!==false;nmF=r.nm!==false;if($("dSet").open)paintSet()}).catch(()=>{})}
 function paintSet(){
   const row=(t,sub,btn)=>`<div class="setr"><span>${t}${sub?`<small>${sub}</small>`:""}</span>${btn||""}</div>`;
   let h="";
@@ -1587,6 +1711,7 @@ function paintSet(){
     h+=row("Mot de passe","",`<button class="ch" data-x="chpw2">Modifier</button>`);
     h+=row("Autres appareils","Les déconnecter","<button class=\"ch\" data-x=\"logall2\">Déconnecter</button>");
     h+=row("Codes de secours",rcN?rcN+" code"+(rcN>1?"s":"")+" restant"+(rcN>1?"s":""):"Pour retrouver ton compte sans e-mail",`<button class="ch ${rcN?"":"on"}" data-x="rcgen">${rcN?"Renouveler":"Créer"}</button>`);
+    h+=row("Messages",nmF?"Notif à chaque nouveau message":"Désactivée",`<button class="ch ${nmF?"on":""}" data-x="nmtog">${nmF?"Activés":"Désactivés"}</button>`);
     h+=row("Activité des amis",naF?"Notif quand un ami ajoute un resto":"Désactivée",`<button class="ch ${naF?"on":""}" data-x="natog">${naF?"Activée":"Désactivée"}</button>`);
     if(admF)h+=row("Signalements","Réservé à l’administrateur",`<button class="ch" data-x="admrp">Ouvrir</button>`);
   }else h+=row("Pas de compte","Tes spots sont sur cet appareil","<button class=\"ch\" data-x=\"goAmis\">Créer un compte</button>");

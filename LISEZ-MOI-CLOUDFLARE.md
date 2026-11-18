@@ -54,3 +54,10 @@ Cloudflare garde l'accès au dépôt privé (la connexion GitHub reste valable).
 - Liens de partage de profil (`/u/pseudo`) avec invitation automatique (demande d'ami envoyée à l'inscription)
 - Notifications push quand un ami ajoute un resto (max. 1 toutes les 6 h par ami, désactivable dans les Réglages)
 - Jusqu'à 3 photos par resto, recadrage des photos, bio, albums visibles par les amis
+
+## Mise à jour : messages, Amis, gestes
+
+- **Notifications de messages** : un push est envoyé à chaque nouveau message (si le destinataire a activé les notifications sur son téléphone). Réglage « Messages » dans Réglages. Appuyer sur la notification ouvre directement la conversation.
+- **Page Amis** : trois onglets (Fil, Messages, Amis).
+- **Fermer une fenêtre** : glisser vers le bas ou vers la droite, n'importe où. Sur un profil ou une conversation, glisser vers la droite revient en arrière.
+- **À tester** : bouton « + » sur chaque resto du profil d'une personne, et bouton dans sa fiche.
