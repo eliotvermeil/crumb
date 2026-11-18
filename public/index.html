@@ -153,7 +153,7 @@ input,textarea,select{font-family:inherit}
 dialog[open]{animation:up .26s cubic-bezier(.2,.9,.3,1)}
 @keyframes up{from{transform:translateY(60px);opacity:.4}}
 #view.fi{animation:fi .22s ease}
-@keyframes fi{from{opacity:0;transform:translateY(8px)}}
+@keyframes fi{from{opacity:0}}
 .card,.mc{transition:transform .12s}.card:active,.mc:active,.fr:active{transform:scale(.98)}
 .grab{position:relative}.grab:after{content:"";position:absolute;inset:-16px -80px}
 
@@ -375,12 +375,13 @@ dialog::backdrop{background:rgba(10,10,9,.42);backdrop-filter:blur(3px);-webkit-
 .recap,.stat,.rc,.fr{animation:none}
 html[data-vt] #view{view-transition-name:vw}
 ::view-transition-group(root),::view-transition-old(root),::view-transition-new(root){animation:none}
-::view-transition-old(vw){animation:vtO .12s ease-in both}
-::view-transition-new(vw){animation:vtI .3s cubic-bezier(.2,.8,.2,1) both}
-html[data-vt=fwd]::view-transition-new(vw){--vx:26px}
-html[data-vt=back]::view-transition-new(vw){--vx:-26px}
+::view-transition-image-pair(vw){isolation:isolate}
+::view-transition-old(vw){animation:vtO .2s ease both;mix-blend-mode:plus-lighter}
+::view-transition-new(vw){animation:vtI .26s ease both;mix-blend-mode:plus-lighter}
+html[data-vt=fwd]::view-transition-new(vw){--vx:18px}
+html[data-vt=back]::view-transition-new(vw){--vx:-18px}
 @keyframes vtO{to{opacity:0}}
-@keyframes vtI{from{opacity:0;transform:translate(var(--vx,0px),8px)}}
+@keyframes vtI{from{opacity:0;transform:translateX(var(--vx,0px))}}
 dialog{transition:transform .24s cubic-bezier(.4,0,.9,.4),opacity .2s ease,overlay .24s allow-discrete,display .24s allow-discrete}
 dialog:not([open]){transform:translateY(48px);opacity:0}
 dialog::backdrop{transition:opacity .24s ease,overlay .24s allow-discrete,display .24s allow-discrete}
@@ -404,8 +405,11 @@ dialog:not([open])::backdrop{opacity:0}
 .grp.req{border:1.5px solid #FF4FA9;border-radius:18px;padding:2px 12px 10px;background:rgba(255,79,169,.07);margin-top:16px}.grp.req .gh{margin-top:12px}
 .acct{background:transparent}
 .card,.mc{position:relative}
-.wsh{position:absolute;right:8px;top:8px;width:32px;height:32px;border-radius:50%;background:#FF4FA9;color:#101010;font:700 24px/31px var(--ui);text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.2);cursor:pointer;z-index:2}
-.wsh.on{background:var(--ink);color:var(--bg);font-size:15px;cursor:default}
+.wsh{position:absolute;right:8px;top:8px;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(16,16,16,.55);-webkit-backdrop-filter:blur(10px) saturate(1.4);backdrop-filter:blur(10px) saturate(1.4);color:#fff;border:1px solid rgba(255,255,255,.28);cursor:pointer;z-index:2;transition:transform .15s,background .2s}
+.wsh::after{content:"";position:absolute;inset:-8px}
+.wsh svg{width:15px;height:15px;display:block}
+.wsh:active{transform:scale(.9)}
+.wsh.on{background:#FF4FA9;color:#101010;border-color:transparent;cursor:default}
 </style>
 <script>["gesturestart","gesturechange","gestureend"].forEach(t=>document.addEventListener(t,e=>e.preventDefault()));document.addEventListener("touchmove",e=>{if(e.touches.length>1&&!(e.target.closest&&e.target.closest(".leaflet-container")))e.preventDefault()},{passive:false});</script></head>
 <body>
@@ -680,17 +684,18 @@ function toast(t){const e=$("toast");e.style.pointerEvents="none";e.textContent=
 const here=()=>new Promise((ok,ko)=>navigator.geolocation?navigator.geolocation.getCurrentPosition(p=>ok({lat:p.coords.latitude,lon:p.coords.longitude}),ko,{enableHighAccuracy:true,timeout:10000,maximumAge:60000}):ko(new Error("geo")));
 function topCuis(){const sc={};live().filter(x=>!x.todo).forEach(x=>{const c=CUIS.find(c=>c[0]===x.cuisine&&c[2]);if(c)sc[c[0]]=(sc[c[0]]||0)+(x.note||6)});return Object.entries(sc).sort((a,b)=>b[1]-a[1]).slice(0,3).map(e=>CUIS.find(c=>c[0]===e[0]))}
 const geoPts=()=>live().filter(x=>x.lat!=null&&x.lon!=null);
+const IPLUS='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',ICHK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>';
 const hasMine=x=>{const k=(x.nom||"").trim().toLowerCase(),v=(x.ville||"").trim().toLowerCase();return items.find(z=>!z.del&&!z.album&&(z.nom||"").trim().toLowerCase()===k&&(!v||!z.ville||z.ville.trim().toLowerCase()===v))};
-const wsh=x=>{const m=hasMine(x);return m?`<span class="wsh on" role="img" aria-label="${m.todo?"Déjà dans À tester":"Déjà dans ton carnet"}">✓</span>`:`<span class="wsh" role="button" tabindex="0" data-x="wishv" data-id="${esc(x.id)}" aria-label="Ajouter à mes restos à tester">+</span>`};
+const wsh=x=>{const m=hasMine(x);return m?`<span class="wsh on" role="img" aria-label="${m.todo?"Déjà dans À tester":"Déjà dans ton carnet"}">${ICHK}</span>`:`<span class="wsh" role="button" tabindex="0" data-x="wishv" data-id="${esc(x.id)}" aria-label="Ajouter à mes restos à tester">${IPLUS}</span>`};
 function wishFrom(x){const ex=hasMine(x);if(ex){toast(ex.todo?"Déjà dans « À tester »":"Déjà dans ton carnet");return}persist({id:rid(),nom:x.nom,cuisine:x.cuisine,ville:x.ville||"",lien:su(x.lien,mapsLink(x.nom,x.ville||x.ad||"")),lat:x.lat??null,lon:x.lon??null,todo:true,note:0,avis:"",photo:"",date:""});toast("Ajouté à « À tester »")}
 
 /* ---- rendu global ---- */
 const VT=!!document.startViewTransition&&!matchMedia("(prefers-reduced-motion:reduce)").matches;
-let lastDepth=0,lastTab="",vtGo=false;
+let lastDepth=0,lastTab="",vtGo=false,fiT=0,lastChat=false;
 const depthNow=()=>(viewing?1:0)+(viewing&&viewing.page==="list"?1:0)+(chat?1:0)+(albView?1:0);
 function render(){
   const k=[tab,listMode,albView,viewing&&viewing.u,viewing&&viewing.page,chat&&chat.u].join("|");
-  if(!VT||!lastKey||k===lastKey||tab==="map"||lastTab==="map"||document.hidden||document.querySelector("dialog[open]")){_render();return}
+  if(!VT||!lastKey||k===lastKey||tab==="map"||lastTab==="map"||chat||lastChat||document.hidden||document.querySelector("dialog[open]")){_render();return}
   const dep=depthNow(),d=dep>lastDepth?"fwd":dep<lastDepth?"back":"tab",root=document.documentElement;
   root.dataset.vt=d;vtGo=true;
   try{const t=document.startViewTransition(()=>{_render()});t.finished.finally(()=>{delete root.dataset.vt})}catch(e){delete root.dataset.vt;_render()}
@@ -711,8 +716,8 @@ function _render(){
   const dpn=depthNow();
   if(key!==lastKey&&(tab!==lastTab||dpn!==lastDepth))scrollTo(0,0);
   if(key!==lastKey&&vtGo){vtGo=false;lastKey=key}
-  else if(key!==lastKey){const v=$("view");v.classList.remove("fi");void v.offsetWidth;v.classList.add("fi");[...v.querySelectorAll(".card,.mc,.fr,.rc,.stat,.badgecard,.bub,.br")].slice(0,10).forEach((e,i)=>e.style.setProperty("--i",i));lastKey=key}
-  lastTab=tab;lastDepth=dpn;
+  else if(key!==lastKey){const v=$("view");v.classList.remove("fi");void v.offsetWidth;v.classList.add("fi");clearTimeout(fiT);fiT=setTimeout(()=>v.classList.remove("fi"),560);[...v.querySelectorAll(".card,.mc,.fr,.rc,.stat,.badgecard,.bub,.br")].slice(0,10).forEach((e,i)=>e.style.setProperty("--i",i));lastKey=key}
+  lastTab=tab;lastDepth=dpn;lastChat=!!chat;
   updBadge();
 }
 
