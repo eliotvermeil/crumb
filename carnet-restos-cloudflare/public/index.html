@@ -388,6 +388,24 @@ dialog:not([open])::backdrop{opacity:0}
 @starting-style{dialog[open]::backdrop{opacity:0}}
 .pillbtn:active,.ch:active,.tab:active{transform:scale(.96)}
 @media (prefers-reduced-motion:reduce){::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}
+
+/* amis / sections */
+.subt{margin:3px 0 0;font:400 14px/1.35 var(--ui);color:var(--mute)}body.mapmode .subt{display:none}
+.sgm{display:flex;gap:4px;padding:4px;margin:12px 0 2px;border:1px solid var(--line);border-radius:16px;background:var(--bg)}
+.sgm button{flex:1;border:0;background:none;color:var(--mute);font:700 14px var(--ui);padding:10px 6px;border-radius:12px;min-height:44px;cursor:pointer;transition:background .2s,color .2s}
+.sgm button.on{background:var(--ink);color:var(--bg)}
+.sb{font-style:normal;margin-left:6px;background:#FF4FA9;color:#101010;border-radius:99px;font-size:11px;padding:2px 7px}
+.gh{margin:26px 0 10px;display:flex;flex-direction:column;gap:3px}.gh b{font:800 19px var(--hv);letter-spacing:-.03em}.gh span{font:400 13px/1.35 var(--ui);color:var(--mute)}
+.rw .lft{display:flex;align-items:center;gap:10px;flex:1;min-width:0;cursor:pointer}.rw>.mid{flex:1}
+.ava{width:38px;height:38px;border-radius:50%;background:#FF4FA9;color:#101010;font:800 16px var(--hv);display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
+.rk{width:26px;font:800 16px var(--hv);color:var(--mute);text-align:center}
+.mid{display:flex;flex-direction:column;min-width:0}.mid small{color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rw .ago{color:var(--mute);font-size:12px;white-space:nowrap}
+.es{border:1.5px dashed var(--line);border-radius:18px;padding:22px 16px;text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center}.es i{color:var(--mute);font-style:normal;font-size:14px}.es .pillbtn{margin-top:8px}
+.grp.req{border:1.5px solid #FF4FA9;border-radius:18px;padding:2px 12px 10px;background:rgba(255,79,169,.07);margin-top:16px}.grp.req .gh{margin-top:12px}
+.acct{background:transparent}
+.card,.mc{position:relative}
+.wsh{position:absolute;right:8px;top:8px;width:32px;height:32px;border-radius:50%;background:#FF4FA9;color:#101010;font:700 24px/31px var(--ui);text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.2);cursor:pointer;z-index:2}
+.wsh.on{background:var(--ink);color:var(--bg);font-size:15px;cursor:default}
 </style>
 <script>["gesturestart","gesturechange","gestureend"].forEach(t=>document.addEventListener(t,e=>e.preventDefault()));document.addEventListener("touchmove",e=>{if(e.touches.length>1&&!(e.target.closest&&e.target.closest(".leaflet-container")))e.preventDefault()},{passive:false});</script></head>
 <body>
@@ -398,7 +416,7 @@ dialog:not([open])::backdrop{opacity:0}
   <div class="sp-tag">KEEP A TASTE OF EVERYWHERE.</div>
 </div></div>
 <div class="wrap">
-  <div class="head"><div><svg class="wmk" viewBox="0 0 536.82 131.24" role="img" aria-label="Crumb"><use href="#lg"/></svg><h1 class="ttl" id="ttl">Mes spots</h1></div><div class="hb"><button class="bell" id="bell" aria-label="Notifications"><svg viewBox="0 0 24 24"><path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 2h-15z"/><path d="M10 21h4"/></svg><i class="bdg" id="bellb" hidden></i></button><button class="pillbtn" id="filterBtn">Filtrer</button></div></div><div class="syn" id="syn" role="status" aria-live="polite"></div>
+  <div class="head"><div><svg class="wmk" viewBox="0 0 536.82 131.24" role="img" aria-label="Crumb"><use href="#lg"/></svg><h1 class="ttl" id="ttl">Mes spots</h1><p class="subt" id="subt"></p></div><div class="hb"><button class="bell" id="bell" aria-label="Notifications"><svg viewBox="0 0 24 24"><path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 2h-15z"/><path d="M10 21h4"/></svg><i class="bdg" id="bellb" hidden></i></button><button class="pillbtn" id="filterBtn">Filtrer</button></div></div><div class="syn" id="syn" role="status" aria-live="polite"></div>
   <input id="q" class="sbar" type="search" placeholder="Rechercher un resto, une ville…" style="display:none">
   <div id="banner"></div>
   <div id="view"></div>
@@ -535,7 +553,7 @@ function renderSpots(){
   if(!viewing)h+=modeChips();
   h+=n&&!todoMode?`<div class="meta"><span class="tag"><b>${n}</b> spot${n>1?"s":""}</span><span class="tag"><b>${avg}</b> ★ moyenne</span>${top?`<span class="tag"><b>${flag(top[0])}</b> ${esc(top[0])}</span>`:""}${fCuis!=="Toutes"?`<span class="tag" data-act="clear" style="cursor:pointer">${esc(fCuis)} ✕</span>`:""}</div>`:"";
   if(!l.length)h+=n?`<div class="empty"><b>Rien ici</b><i>Essaie un autre filtre.</i></div>`:`<div class="empty"><b>${viewing?"Rien pour l’instant":todoMode?"Ta liste est vide":"Ton carnet est vide"}</b><i>${viewing?"Cet ami n’a encore rien ajouté.":todoMode?"Garde ici les adresses à tester depuis « Pour toi ».":"Ajoute le dernier resto où tu as mangé."}</i></div>`;
-  else h+='<div class="cols">'+l.map(x=>{const c=col(x.cuisine);return `<button class="card" data-o="${esc(x.id)}" style="--cb:${c.b};--cf:${c.f}"><div class="top"><span>${esc(x.nom)}</span>${x.note?`<span class="pill">★ ${fmt(x.note)}</span>`:x.todo?`<span class="pill">À tester</span>`:""}</div><div class="img">${x.photo?`<img loading="lazy" decoding="async" src="${x.photo}" alt="">`:flag(x.cuisine)}</div><h3>${esc(x.cuisine)}</h3></button>`}).join("")+"</div>";
+  else h+='<div class="cols">'+l.map(x=>{const c=col(x.cuisine);return `<button class="card" data-o="${esc(x.id)}" style="--cb:${c.b};--cf:${c.f}"><div class="top"><span>${esc(x.nom)}</span>${x.note?`<span class="pill">★ ${fmt(x.note)}</span>`:x.todo?`<span class="pill">À tester</span>`:""}</div><div class="img">${x.photo?`<img loading="lazy" decoding="async" src="${x.photo}" alt="">`:flag(x.cuisine)}</div><h3>${esc(x.cuisine)}</h3>${viewing?wsh(x):""}</button>`}).join("")+"</div>";
   if(!n&&!viewing&&!todoMode)h+=`<div class="acts" style="justify-content:center"><button class="pri" data-act="addfirst" style="max-width:300px">Ajouter mon premier resto</button></div>`;
   $("view").innerHTML=h;
 }
@@ -662,7 +680,9 @@ function toast(t){const e=$("toast");e.style.pointerEvents="none";e.textContent=
 const here=()=>new Promise((ok,ko)=>navigator.geolocation?navigator.geolocation.getCurrentPosition(p=>ok({lat:p.coords.latitude,lon:p.coords.longitude}),ko,{enableHighAccuracy:true,timeout:10000,maximumAge:60000}):ko(new Error("geo")));
 function topCuis(){const sc={};live().filter(x=>!x.todo).forEach(x=>{const c=CUIS.find(c=>c[0]===x.cuisine&&c[2]);if(c)sc[c[0]]=(sc[c[0]]||0)+(x.note||6)});return Object.entries(sc).sort((a,b)=>b[1]-a[1]).slice(0,3).map(e=>CUIS.find(c=>c[0]===e[0]))}
 const geoPts=()=>live().filter(x=>x.lat!=null&&x.lon!=null);
-function wishFrom(x){persist({id:rid(),nom:x.nom,cuisine:x.cuisine,ville:x.ville||"",lien:su(x.lien,mapsLink(x.nom,x.ville||x.ad||"")),lat:x.lat??null,lon:x.lon??null,todo:true,note:0,avis:"",photo:"",date:""});toast("Ajouté à « À tester »")}
+const hasMine=x=>{const k=(x.nom||"").trim().toLowerCase(),v=(x.ville||"").trim().toLowerCase();return items.find(z=>!z.del&&!z.album&&(z.nom||"").trim().toLowerCase()===k&&(!v||!z.ville||z.ville.trim().toLowerCase()===v))};
+const wsh=x=>{const m=hasMine(x);return m?`<span class="wsh on" role="img" aria-label="${m.todo?"Déjà dans À tester":"Déjà dans ton carnet"}">✓</span>`:`<span class="wsh" role="button" tabindex="0" data-x="wishv" data-id="${esc(x.id)}" aria-label="Ajouter à mes restos à tester">+</span>`};
+function wishFrom(x){const ex=hasMine(x);if(ex){toast(ex.todo?"Déjà dans « À tester »":"Déjà dans ton carnet");return}persist({id:rid(),nom:x.nom,cuisine:x.cuisine,ville:x.ville||"",lien:su(x.lien,mapsLink(x.nom,x.ville||x.ad||"")),lat:x.lat??null,lon:x.lon??null,todo:true,note:0,avis:"",photo:"",date:""});toast("Ajouté à « À tester »")}
 
 /* ---- rendu global ---- */
 const VT=!!document.startViewTransition&&!matchMedia("(prefers-reduced-motion:reduce)").matches;
@@ -678,6 +698,7 @@ function render(){
 function _render(){
   document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.t===tab));
   $("ttl").textContent=TT[tab];
+  $("subt").textContent=(viewing||chat)?"":(tab==="spots"?({faits:"Les restos que tu as déjà testés, avec ta note.",todo:"Les adresses que tu veux essayer un jour.",albums:"Tes restos rangés par thème.",reco:"Des idées de restos selon tes goûts."}[listMode]||""):({map:"Tes spots et les bonnes adresses autour de toi.",amis:"Tes amis, leurs découvertes et vos messages.",profil:"Ton profil, tes favoris, tes badges et tes réglages."}[tab]||""));
   const listy=(tab==="spots"&&!viewing&&(listMode==="faits"||listMode==="todo"))||(viewing&&viewing.page==="list");
   const pr=tab==="profil"&&!viewing;$("filterBtn").style.display=listy||pr?"":"none";$("filterBtn").textContent=pr?"Réglages":"Filtrer";$("filterBtn").setAttribute("aria-label",pr?"Ouvrir les réglages":"Filtrer la liste");
   $("add").style.display=tab==="spots"&&!viewing?"":"none";
@@ -974,18 +995,38 @@ function poll(){
 const RX=["❤️","🔥","🤤","👀"];
 const rxTxt=rx=>Object.entries(rx||{}).map(([u,e])=>e+" @"+esc(u)).join(" · ");
 async function loadBoard(){try{boardRows=(await api("board")).rows;if(tab==="amis"&&!viewing&&!chat)renderAmis()}catch(e){}}
+let amTab="";
+XH.amt=b=>{amTab=b.dataset.k;renderAmis();scrollTo(0,0)};
 function renderAmis(){
   if(!tok){$("view").innerHTML=`<div class="ser" style="margin:12px 0 4px">${REF?`<div class="note" style="color:var(--ink)"><b>@${esc(REF)}</b> t’invite sur Crumb. Crée ton compte pour le retrouver.</div>`:""}Crée un compte pour retrouver tes spots partout et les partager avec tes amis.</div><label>Pseudo</label><input id="au" autocapitalize="none" autocomplete="username" placeholder="Ton pseudo"><label>Mot de passe</label><input id="ap" type="password" autocomplete="new-password" placeholder="8 caractères minimum"><div style="text-align:right;margin-top:6px"><span class="lk" data-x="forgot">Mot de passe oublié ?</span></div>${authErr?`<div class="note" style="color:#e4572e">${esc(authErr)}</div>`:""}<label class="ck"><input type="checkbox" id="cg"><span>J’ai 15 ans ou plus et j’accepte les <span class="lk" data-x="lg" data-k="cgu">conditions d’utilisation</span> et la <span class="lk" data-x="lg" data-k="priv">politique de confidentialité</span> (pour créer un compte).</span></label><div class="acts"><button data-act="login">Connexion</button><button class="pri" data-act="signup">Créer mon compte</button></div><div class="note" style="margin-top:12px">N’utilise pas un mot de passe que tu emploies ailleurs. Tes spots restent aussi disponibles sans compte, sur cet appareil.</div>`;return}
   if(chat)return renderChat();
   const th=Object.fromEntries(threads.map(t=>[t.u,t])),fr=[...soc.fr].sort((a,b)=>((th[b]||{}).ts||0)-((th[a]||{}).ts||0));
-  $("view").innerHTML=`<div class="fr" style="margin-top:8px"><span>Connecté : <b>@${esc(me)}</b></span><button class="pillbtn sm" data-act="logout">Déconnexion</button></div>
-  ${soc.rq.length?`<label>Demandes reçues</label>`+soc.rq.map(u=>`<div class="fr"><b>${PL(u)}</b><button class="pillbtn sm" data-act="acc" data-u="${esc(u)}">Accepter</button></div>`).join(""):""}
-  <label>Mes amis</label>${fr.length?fr.map(u=>{const t=th[u],un=t&&t.un>0;return `<div class="fr"><span data-x="chat" data-u="${esc(u)}" style="flex:1;cursor:pointer;min-width:0"><b>${PL(u)}</b>${un?'<span class="dot"></span>':""}<small style="display:block;color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t?(t.from===me?"Toi : ":"")+esc(t.m||""):"Écrire un message"}</small></span><button class="pillbtn sm" data-act="viewf" data-u="${esc(u)}">Profil</button></div>`}).join(""):`<div class="note">Pas encore d’amis. Ajoute un pseudo ci-dessous : il verra ta demande dans son onglet Amis.</div>`}
-  <label>Ajouter un ami</label><div class="row"><input id="af" autocapitalize="none" placeholder="Son pseudo"><button class="pillbtn" data-act="addf" style="flex:0 0 auto">Ajouter</button></div>${authErr?`<div class="note">${esc(authErr)}</div>`:""}
-  <label>Découvrir des profils publics</label><div class="row"><input id="du" autocapitalize="none" placeholder="Chercher un pseudo"><button class="pillbtn" data-x="dsearch" style="flex:0 0 auto">Chercher</button></div>${discRes?(discRes.length?discRes.map(u=>`<div class="fr"><b>${PL(u)}</b><button class="pillbtn sm" data-x="dview" data-u="${esc(u)}">Profil</button></div>`).join(""):'<div class="note">Aucun profil public trouvé.</div>'):""}
-  ${soc.fo&&soc.fo.length?`<label>Mes abonnements</label>`+soc.fo.map(u=>`<div class="fr"><b>${PL(u)}</b><button class="pillbtn sm" data-x="dview" data-u="${esc(u)}">Profil</button></div>`).join(""):""}
-  ${boardRows.length>1?`<label>Classement entre amis</label>`+boardRows.slice(0,6).map((r,i)=>`<div class="fr"><span><b>${i+1}.</b> ${PL(r.u)}${r.u===me?" (toi)":""}<small style="display:block;color:var(--mute)">${r.c} cuisine${r.c>1?"s":""}${r.avg?" · moy. "+fmt(r.avg):""}</small></span><b>${r.n} resto${r.n>1?"s":""}</b></div>`).join(""):""}
-  ${feed.length?`<label>Découvertes de tes amis</label>`+feed.map((x,i)=>`<div class="fr" style="display:block"><div style="display:flex;justify-content:space-between;gap:8px"><span data-x="fx" data-i="${i}" style="cursor:pointer;min-width:0"><b>${PL(x.u)}</b>${x.k==="o"?' <small style="color:var(--mute)">abonnement</small>':""} · ${esc(x.nom)}<small style="display:block;color:var(--mute)">${flag(x.cuisine)} ${esc(x.cuisine)}${x.note?" · ★ "+fmt(x.note):""}${x.prix?" · "+x.prix+" €":""}</small></span><a class="xa" target="_blank" rel="noopener" style="color:var(--ink);font-size:13px;white-space:nowrap" href="${esc(su(x.lien,mapsLink(x.nom,x.ville)))}">Fiche</a></div>${x.avis?`<div style="margin-top:6px;font-size:14px">« ${esc(x.avis)} »</div>`:""}<div class="rxb">${RX.map(e=>`<button class="${(x.rx||{})[me]===e?"on":""}" data-act="rx" data-i="${i}" data-e="${e}">${e}</button>`).join("")}<span style="flex:1"></span><button data-x="fx" data-i="${i}" style="font-size:13px">Commenter${x.cn?" ("+x.cn+")":""}</button><button data-act="wishf" data-i="${i}" style="font-size:13px">À tester</button></div>${Object.keys(x.rx||{}).length?`<small style="display:block;color:var(--mute);margin-top:6px">${rxTxt(x.rx)}</small>`:""}</div>`).join(""):""}`;
+  const unr=threads.reduce((n,t)=>n+(t.un||0),0),A=amTab||(soc.fr.length&&feed.length?"fil":"amis");
+  const sg=(k,t,n)=>`<button role="tab" aria-selected="${A===k}" class="${A===k?"on":""}" data-x="amt" data-k="${k}">${t}${n?`<i class="sb">${n}</i>`:""}</button>`;
+  const gh=(t,hint)=>`<div class="gh"><b>${t}</b>${hint?`<span>${hint}</span>`:""}</div>`;
+  const av=u=>`<span class="ava" aria-hidden="true">${esc((u[0]||"?").toUpperCase())}</span>`;
+  const es=(t,i,btn)=>`<div class="es"><b>${t}</b><i>${i}</i>${btn||""}</div>`;
+  let h=`<div class="sgm" role="tablist" aria-label="Sections">${sg("fil","Fil")}${sg("msg","Messages",unr)}${sg("amis","Amis",soc.rq.length)}</div>`;
+  if(A==="fil"){
+    h+=gh("Découvertes de tes amis","Les restos qu’ils viennent d’ajouter. Réagis, commente ou ajoute-les à tester.");
+    h+=feed.length?feed.map((x,i)=>`<div class="fr" style="display:block"><div style="display:flex;justify-content:space-between;gap:8px"><span data-x="fx" data-i="${i}" style="cursor:pointer;min-width:0"><b>${PL(x.u)}</b>${x.k==="o"?' <small style="color:var(--mute)">abonnement</small>':""} · ${esc(x.nom)}<small style="display:block;color:var(--mute)">${flag(x.cuisine)} ${esc(x.cuisine)}${x.note?" · ★ "+fmt(x.note):""}${x.prix?" · "+x.prix+" €":""}</small></span><a class="xa" target="_blank" rel="noopener" style="color:var(--ink);font-size:13px;white-space:nowrap" href="${esc(su(x.lien,mapsLink(x.nom,x.ville)))}">Fiche</a></div>${x.avis?`<div style="margin-top:6px;font-size:14px">« ${esc(x.avis)} »</div>`:""}<div class="rxb">${RX.map(e=>`<button class="${(x.rx||{})[me]===e?"on":""}" data-act="rx" data-i="${i}" data-e="${e}">${e}</button>`).join("")}<span style="flex:1"></span><button data-x="fx" data-i="${i}" style="font-size:13px">Commenter${x.cn?" ("+x.cn+")":""}</button><button data-act="wishf" data-i="${i}" style="font-size:13px">À tester</button></div>${Object.keys(x.rx||{}).length?`<small style="display:block;color:var(--mute);margin-top:6px">${rxTxt(x.rx)}</small>`:""}</div>`).join(""):es("Rien pour l’instant","Quand tes amis ajoutent un resto, il apparaît ici.",`<button class="pillbtn" data-x="amt" data-k="amis">Ajouter des amis</button>`);
+    if(boardRows.length>1)h+=gh("Classement entre amis","Qui a goûté le plus de cuisines")+boardRows.slice(0,6).map((r,i)=>`<div class="fr rw"><span class="rk">${i+1}</span><span class="mid"><b>${PL(r.u)}${r.u===me?" (toi)":""}</b><small>${r.c} cuisine${r.c>1?"s":""}${r.avg?" · moy. "+fmt(r.avg):""}</small></span><b>${r.n} resto${r.n>1?"s":""}</b></div>`).join("");
+  }else if(A==="msg"){
+    const L=threads.filter(t=>soc.fr.includes(t.u)).sort((x,y)=>(y.ts||0)-(x.ts||0)),nf=soc.fr.filter(u=>!th[u]);
+    h+=gh("Conversations","Touche une conversation pour l’ouvrir");
+    h+=L.length?L.map(t=>`<div class="fr rw" data-x="chat" data-u="${esc(t.u)}" style="cursor:pointer">${av(t.u)}<span class="mid"><b>@${esc(t.u)}${t.un>0?'<span class="dot"></span>':""}</b><small>${t.from===me?"Toi : ":""}${esc(t.m||"")}</small></span><small class="ago">${t.ts?ago(t.ts):""}</small></div>`).join(""):es("Aucune conversation","Écris à un ami, ou envoie-lui une recommandation depuis la fiche d’un resto.");
+    if(nf.length)h+=gh("Écrire à un ami")+`<div class="cg">${nf.map(u=>`<button class="ch" data-x="chat" data-u="${esc(u)}">@${esc(u)}</button>`).join("")}</div>`;
+    if(!soc.fr.length)h+=`<div class="acts" style="justify-content:center;margin-top:12px"><button class="pillbtn" data-x="amt" data-k="amis">Trouver des amis</button></div>`;
+  }else{
+    if(soc.rq.length)h+=`<div class="grp req">${gh("Demandes d’amis","Elles attendent ta réponse")}${soc.rq.map(u=>`<div class="fr rw">${av(u)}<span class="mid"><b>${PL(u)}</b><small>veut devenir ton ami</small></span><button class="pillbtn sm" data-act="acc" data-u="${esc(u)}">Accepter</button></div>`).join("")}</div>`;
+    h+=gh("Mes amis"+(fr.length?" · "+fr.length:""),"Touche un ami pour voir son profil");
+    h+=fr.length?fr.map(u=>`<div class="fr rw"><span class="lft" data-act="viewf" data-u="${esc(u)}">${av(u)}<span class="mid"><b>@${esc(u)}</b><small>Voir le profil</small></span></span><button class="pillbtn sm" data-x="chat" data-u="${esc(u)}">Écrire${(th[u]&&th[u].un>0)?'<span class="dot"></span>':""}</button></div>`).join(""):es("Pas encore d’amis","Ajoute un pseudo ci-dessous : il verra ta demande dans son onglet Amis.");
+    h+=gh("Ajouter un ami","Entre son pseudo exact")+`<div class="row"><input id="af" autocapitalize="none" placeholder="Son pseudo"><button class="pillbtn" data-act="addf" style="flex:0 0 auto">Ajouter</button></div>${authErr?`<div class="note">${esc(authErr)}</div>`:""}`;
+    h+=gh("Trouver des profils publics","Suis des gens sans être amis")+`<div class="row"><input id="du" autocapitalize="none" placeholder="Chercher un pseudo"><button class="pillbtn" data-x="dsearch" style="flex:0 0 auto">Chercher</button></div>${discRes?(discRes.length?discRes.map(u=>`<div class="fr rw"><span class="lft" data-x="dview" data-u="${esc(u)}">${av(u)}<span class="mid"><b>@${esc(u)}</b><small>Profil public</small></span></span><button class="pillbtn sm" data-x="dview" data-u="${esc(u)}">Voir</button></div>`).join(""):'<div class="note">Aucun profil public trouvé.</div>'):""}`;
+    if(soc.fo&&soc.fo.length)h+=gh("Mes abonnements · "+soc.fo.length,"Les profils publics que tu suis")+soc.fo.map(u=>`<div class="fr rw"><span class="lft" data-x="dview" data-u="${esc(u)}">${av(u)}<span class="mid"><b>@${esc(u)}</b><small>Voir le profil</small></span></span><button class="pillbtn sm" data-x="dview" data-u="${esc(u)}">Voir</button></div>`).join("");
+    h+=`<div class="fr acct" style="margin-top:26px"><span>Connecté : <b>@${esc(me)}</b></span><button class="pillbtn sm" data-act="logout">Déconnexion</button></div>`;
+  }
+  $("view").innerHTML=h;
 }
 XH.chat=b=>openChat(b.dataset.u);
 XH.fx=b=>{const x=feed[+b.dataset.i];if(!x)return;if($("dNt").open)$("dNt").close();openFiche({...x,_ext:1},{u:x.u,id:x.id})};
@@ -1122,6 +1163,8 @@ function openFiche(x,ctx){
   $("dDet").showModal();loadCm();
 }
 XH.rxf=async b=>{const x=ficheX,e=b.dataset.e;if(!x)return;try{await api("react",{u:ficheCtx.u,id:ficheCtx.id,e,nom:x.nom});x.rx={...(x.rx||{})};if(x.rx[me]===e)delete x.rx[me];else x.rx[me]=e;document.querySelectorAll('#detBody [data-x="rxf"]').forEach(z=>z.classList.toggle("on",x.rx[me]===z.dataset.e))}catch(er){toast(er.message)}};
+XH.wishv=b=>{const x=(viewing?viewing.items:[]).find(z=>z.id===b.dataset.id);if(x){wishFrom({...x});if(navigator.vibrate)navigator.vibrate(10)}};
+XH.wishdet=b=>{const x=(viewing?viewing.items:[]).find(z=>z.id===b.dataset.id);if(!x)return;wishFrom({...x});b.disabled=true;b.textContent="Dans tes restos à tester"};
 XH.wishfx=()=>{if(ficheX){wishFrom(ficheX);$("dDet").close()}};
 XH.folt=async()=>{if(!viewing)return;const v=viewing,was=v.following;v.following=!was;delete relC[v.u];delete relC[me];render();try{await api(was?"unfollow":"follow",{u:v.u})}catch(e){v.following=was;render();toast(e.message)}};
 XH.addv=async()=>{if(!viewing)return;const v=viewing,u=v.u;try{await api("add",{u});v.req=true;toast("Demande envoyée à @"+u+".");await loadSoc();if((soc.fr||[]).includes(u)){const r=await api("view",{u});Object.assign(v,{items:v2(r.items),albums:r.albums||[],prof:r.prof||{},friend:true,limited:false,req:false})}render()}catch(e){toast(e.message)}};
@@ -1174,7 +1217,7 @@ const cardHtml=x=>{const c=col(x.cuisine);return `<button class="card" data-o="$
 function modeChips(){
   const nd=live().filter(x=>!x.todo).length,nt=live().filter(x=>x.todo).length,na=albums().length,m=listMode;
   const c=(k,t,n)=>`<button class="ch ${m===k?"on":""}" data-act="mode" data-m="${k}">${t}${n!=null?`<span class="cn">${n}</span>`:""}</button>`;
-  return `<div class="cg" style="margin:8px 0 0;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px">${c("faits","Faits",nd)}${c("todo","À tester",nt)}${c("albums","Albums",na)}${c("reco","Découvrir")}</div>`;
+  return `<div class="cg" style="margin:8px 0 0;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px">${c("faits","Testés",nd)}${c("todo","À tester",nt)}${c("albums","Albums",na)}${c("reco","Découvrir")}</div>`;
 }
 function renderAlbums(){
   const al=albums(),sp=live().filter(x=>!x.todo);
@@ -1229,7 +1272,7 @@ function crop(file,w,h,q){return new Promise(res=>{const r=new FileReader();r.on
 function mini(x,own,i){
   if(!x)return own?`<button class="mc empty" data-slot="${i}">+</button>`:`<button class="mc empty" style="visibility:hidden"></button>`;
   const c=col(x.cuisine);
-  return `<button class="mc" ${own&&i!=null?`data-slot="${i}"`:`data-o="${esc(x.id)}"`} style="--cb:${c.b};--cf:${c.f}"><div class="mi">${x.photo?`<img loading="lazy" decoding="async" src="${x.photo}" alt="">`:flag(x.cuisine)}</div><span>${esc(x.nom)}</span></button>`;
+  return `<button class="mc" ${own&&i!=null?`data-slot="${i}"`:`data-o="${esc(x.id)}"`} style="--cb:${c.b};--cf:${c.f}"><div class="mi">${x.photo?`<img loading="lazy" decoding="async" src="${x.photo}" alt="">`:flag(x.cuisine)}</div><span>${esc(x.nom)}</span>${!own&&viewing?wsh(x):""}</button>`;
 }
 function recapHtml(src){
   const y=String(new Date().getFullYear()),mo=new Date().toISOString().slice(0,7);
@@ -1394,7 +1437,8 @@ $("wrDl").onclick=async()=>{const b=await wrBlob();if(!b)return;const a=document
 /* ===== hors connexion ===== */
 (()=>{const b=$("offB"),u=()=>{b.style.display=navigator.onLine?"none":""};addEventListener("online",u);addEventListener("offline",u);u()})();
 /* ===== codes de secours / mot de passe oublié / signalements (admin) ===== */
-let rcN=0,admF=false,rcFresh=false,naF=true;
+let rcN=0,admF=false,rcFresh=false,naF=true,nmF=true;
+XH.nmtog=async()=>{try{const r=await api("setna",{k:"nm",v:!nmF});nmF=r.nm!==false;paintSet()}catch(e){toast(e.message)}};
 XH.natog=async()=>{try{const r=await api("setna",{v:!naF});naF=r.na;paintSet()}catch(e){toast(e.message)}};
 function showCodes(codes,intro){
   $("rcI").textContent=intro||"Note ces 8 codes en lieu sûr (capture d’écran, gestionnaire de mots de passe…). Chacun ne marche qu’une fois et permet de changer ton mot de passe si tu l’oublies. En générer de nouveaux annule les anciens.";
@@ -1458,6 +1502,7 @@ const goLink=x=>"https://www.google.com/maps/dir/?api=1&destination="+encodeURIC
 function openDet(id){
   const x=(viewing?viewing.items:items).find(i=>i.id===id);if(!x||x.del)return;const c=col(x.cuisine),fiche=esc(su(x.lien,mapsLink(x.nom,x.ville)));
   $("detBody").innerHTML=`<div class="dimg" style="--cb:${c.b};--cf:${c.f}">${x.photo?`<img loading="lazy" decoding="async" src="${x.photo}" alt="">`:flag(x.cuisine)}</div>${(x.phx||[]).length?`<div style="display:flex;gap:8px;overflow-x:auto;margin:8px 0 0">${x.phx.map(p=>`<img loading="lazy" decoding="async" alt="" src="${p}" style="height:120px;width:120px;object-fit:cover;border-radius:14px;flex:none">`).join("")}</div>`:""}<h2>${esc(x.nom)}</h2><div class="ser">${esc(x.cuisine)}${x.ville?" · "+esc(x.ville):""}${x.date?" · "+new Date(x.date).toLocaleDateString(I18N.loc()):""}${x.prix?" · "+x.prix+" €/pers.":""}</div>${albTags(x)}${(x.occ||[]).length?`<div class="cg" style="margin-top:8px">${x.occ.map(k=>`<span class="ch on" style="pointer-events:none">${(OCC.find(o=>o[0]===k)||[,k])[1]}</span>`).join("")}</div>`:""}${x.must?`<div style="margin-top:12px"><b>À retenir</b> · ${esc(x.must)}</div>`:""}${x.note?`<div style="font-size:min(26px,6.4vw);margin-top:8px">${stars(x.note)} <span style="font-size:16px;color:var(--mute)">${fmt(x.note)}/10</span></div>`:""}${x.avis?`<p style="white-space:pre-wrap;margin:12px 0 0">${esc(x.avis)}</p>`:""}<div id="frv"></div><div class="acts"><a class="xa pillbtn" style="text-decoration:none;text-align:center;flex:1" target="_blank" rel="noopener" href="${esc(goLink(x))}">Y aller</a><a class="xa pillbtn" style="text-decoration:none;text-align:center;flex:1" target="_blank" rel="noopener" href="${fiche}">Voir la fiche</a></div><div class="acts">${navigator.share?`<button data-share="${esc(x.id)}">Partager</button>`:""}${viewing?"":`<button data-alb2="${esc(x.id)}">Albums</button><button data-rec="${esc(x.id)}">Recommander</button>`}</div>${viewing?"":`<div class="acts"><button data-del="${esc(x.id)}">Supprimer</button><button class="pri" data-ed="${esc(x.id)}">${x.todo?"J’y suis allé":"Modifier"}</button></div>`}`;
+  if(viewing)$("detBody").insertAdjacentHTML("beforeend",`<div class="acts" style="margin-top:14px"><button class="pri" data-x="wishdet" data-id="${esc(x.id)}"${hasMine(x)?" disabled":""}>${hasMine(x)?"Déjà dans ta liste":"Ajouter à mes restos à tester"}</button></div>`);
   ficheCtx=null;ficheX=null;
   if(tok){ficheCtx={u:viewing?viewing.u:me,id:x.id,nom:x.nom};ficheX=x;$("detBody").insertAdjacentHTML("beforeend",cmBox())}
   if(!viewing&&!x.todo)$("detBody").insertAdjacentHTML("beforeend",`<div style="margin-top:14px"><button class="ch" data-x="shareres">Partager</button></div>`);
@@ -1493,6 +1538,7 @@ $("fS").onclick=()=>{
   if(isNew&&!it.todo){if(navigator.vibrate)navigator.vibrate(12);if(tok&&soc.fr.length)toastAct("Ajouté à ton carnet","Partager",()=>openRec(it.id));else toast("Ajouté à ton carnet")}
 };
 $("view").onclick=e=>{
+  const wv=e.target.closest('[data-x="wishv"]');if(wv){e.stopPropagation();return XH.wishv(wv)}
   bk(e);
   const o=e.target.closest("[data-o]");if(o)return openDet(o.dataset.o);
   const sl=e.target.closest("[data-slot]");if(sl)return openPick(+sl.dataset.slot);
@@ -1590,7 +1636,45 @@ setInterval(poll,20000);
     else if(t.id==="inst"){ss("cr-inst-s","1");close()}
   });
 })();
-if("serviceWorker" in navigator)navigator.serviceWorker.register("/sw.js").catch(()=>{});
+
+/* ---- glisser pour fermer / revenir ---- */
+(function(){
+  let d=null,x0=0,y0=0,t0=0,mode=0,dx=0,dy=0,kind="";
+  const ov=(el,top,ax)=>{for(;el&&el!==top&&el.nodeType===1;el=el.parentElement){const c=getComputedStyle(el);if(ax==="x"?(/(auto|scroll)/.test(c.overflowX)&&el.scrollWidth>el.clientWidth+2):(/(auto|scroll)/.test(c.overflowY)&&el.scrollHeight>el.clientHeight+2&&el.scrollTop>0))return true}return false};
+  const SKIP="input,textarea,select,[contenteditable],.leaflet-container,#dCr,#map";
+  addEventListener("touchstart",e=>{
+    d=null;mode=0;if(e.touches.length!==1)return;const t=e.target;if(!t.closest||t.closest(SKIP))return;
+    const dl=t.closest("dialog[open]");
+    if(dl){d=dl;kind="dlg"}
+    else if(!document.querySelector("dialog[open]")&&tab!=="map"&&(viewing||chat||albView)){d=$("view");kind="pg"}
+    if(!d)return;x0=e.touches[0].clientX;y0=e.touches[0].clientY;t0=Date.now();dx=dy=0;
+  },{passive:true});
+  addEventListener("touchmove",e=>{
+    if(!d)return;const t=e.touches[0];dx=t.clientX-x0;dy=t.clientY-y0;
+    if(!mode){
+      if(Math.abs(dx)<12&&Math.abs(dy)<12)return;
+      if(dx>0&&Math.abs(dx)>Math.abs(dy)*1.5&&!ov(e.target,d,"x"))mode=2;
+      else if(kind==="dlg"&&dy>0&&Math.abs(dy)>Math.abs(dx)*1.3&&d.scrollTop<=0&&!ov(e.target,d,"y"))mode=1;
+      else{d=null;return}
+    }
+    if(e.cancelable)e.preventDefault();
+    const v=Math.max(0,mode===1?dy:dx);d.style.transition="none";
+    d.style.transform=mode===1?`translateY(${v}px)`:`translateX(${v}px)`;
+    if(kind==="dlg")d.style.opacity=String(1-Math.min(.55,v/520));
+  },{passive:false});
+  const end=()=>{
+    if(!d||!mode){d=null;return}
+    const el=d,m=mode,k=kind,v=Math.max(0,m===1?dy:dx),fast=v/Math.max(1,Date.now()-t0)>.55;d=null;mode=0;
+    el.style.transition="transform .22s cubic-bezier(.2,.8,.2,1),opacity .2s";
+    if(v>(m===1?110:90)||(fast&&v>40)){
+      if(k==="dlg"){el.style.transform=m===1?"translateY(105%)":"translateX(105%)";el.style.opacity="0";setTimeout(()=>{try{el.close()}catch(e){}el.style.transform=el.style.opacity=el.style.transition=""},210)}
+      else{el.style.transform="";el.style.transition="";const b=el.querySelector('[data-act="back"],[data-act="chatback"],[data-act="vprof"],[data-act="albback"]');if(b)b.click()}
+    }else{el.style.transform="";el.style.opacity="";setTimeout(()=>{el.style.transition=""},230)}
+  };
+  addEventListener("touchend",end,{passive:true});addEventListener("touchcancel",end,{passive:true});
+})();
+if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js").catch(()=>{});navigator.serviceWorker.addEventListener("message",e=>{const g=e.data&&e.data.go;if(!g||!tok)return;try{const c=new URL(g,location.origin).searchParams.get("chat");if(c)openChat(c)}catch(x){}})}
+{const c0=new URLSearchParams(location.search).get("chat");if(c0){try{history.replaceState(null,"","/")}catch(e){}setTimeout(()=>{if(tok)openChat(c0.toLowerCase())},1800)}}
 document.querySelectorAll("dialog").forEach(d=>{const g=d.querySelector(".grab");if(!g)return;let y=null;
   g.addEventListener("touchstart",e=>{y=e.touches[0].clientY;d.style.transition="none"},{passive:true});
   g.addEventListener("touchmove",e=>{if(y!=null)d.style.transform=`translateY(${Math.max(0,e.touches[0].clientY-y)}px)`},{passive:true});
@@ -1616,7 +1700,7 @@ function applyTheme(v){
 const themePref=()=>lsGet("cr-theme")||"auto";
 XH.lang=b=>{I18N.set(b.dataset.v);paintSet();render()};
 XH.theme=b=>{lsSet("cr-theme",b.dataset.v);applyTheme(b.dataset.v);paintSet()};
-function openSet(){paintSet();$("dSet").showModal();if(tok)api("blocks").then(r=>{blkL=r.list||[];rcN=r.rcn||0;admF=!!r.adm;naF=r.na!==false;if($("dSet").open)paintSet()}).catch(()=>{})}
+function openSet(){paintSet();$("dSet").showModal();if(tok)api("blocks").then(r=>{blkL=r.list||[];rcN=r.rcn||0;admF=!!r.adm;naF=r.na!==false;nmF=r.nm!==false;if($("dSet").open)paintSet()}).catch(()=>{})}
 function paintSet(){
   const row=(t,sub,btn)=>`<div class="setr"><span>${t}${sub?`<small>${sub}</small>`:""}</span>${btn||""}</div>`;
   let h="";
@@ -1627,6 +1711,7 @@ function paintSet(){
     h+=row("Mot de passe","",`<button class="ch" data-x="chpw2">Modifier</button>`);
     h+=row("Autres appareils","Les déconnecter","<button class=\"ch\" data-x=\"logall2\">Déconnecter</button>");
     h+=row("Codes de secours",rcN?rcN+" code"+(rcN>1?"s":"")+" restant"+(rcN>1?"s":""):"Pour retrouver ton compte sans e-mail",`<button class="ch ${rcN?"":"on"}" data-x="rcgen">${rcN?"Renouveler":"Créer"}</button>`);
+    h+=row("Messages",nmF?"Notif à chaque nouveau message":"Désactivée",`<button class="ch ${nmF?"on":""}" data-x="nmtog">${nmF?"Activés":"Désactivés"}</button>`);
     h+=row("Activité des amis",naF?"Notif quand un ami ajoute un resto":"Désactivée",`<button class="ch ${naF?"on":""}" data-x="natog">${naF?"Activée":"Désactivée"}</button>`);
     if(admF)h+=row("Signalements","Réservé à l’administrateur",`<button class="ch" data-x="admrp">Ouvrir</button>`);
   }else h+=row("Pas de compte","Tes spots sont sur cet appareil","<button class=\"ch\" data-x=\"goAmis\">Créer un compte</button>");

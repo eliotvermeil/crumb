@@ -219,8 +219,8 @@ async function pushTo(st, to, o) {
   if (!vpk()) return;
   const k = "ps/" + to, subs = (await st.get(k, { type: "json" }).catch(() => null)) || [];
   if (!subs.length) return;
-  const T = { req: ["Nouvelle demande d’ami", `@${o.u} veut devenir ton ami`], acc: ["Demande acceptée", `@${o.u} a accepté ta demande`], fol: ["Nouvel abonné", `@${o.u} s’est abonné à ton profil`], nw: ["Nouveau resto", `@${o.u} a ajouté ${o.m || "un resto"}`], rx: ["Nouvelle réaction", `@${o.u} a réagi ${o.e || ""} à ${o.m || "ton resto"}`], cm: ["Nouveau commentaire", `@${o.u} : ${o.x || ""}`] }[o.ty] || ["Crumb", "Nouvelle activité"];
-  const payload = JSON.stringify({ title: T[0], body: T[1], tag: o.ty });
+  const T = { msg: ["@" + o.u, o.m || "Nouveau message"], req: ["Nouvelle demande d’ami", `@${o.u} veut devenir ton ami`], acc: ["Demande acceptée", `@${o.u} a accepté ta demande`], fol: ["Nouvel abonné", `@${o.u} s’est abonné à ton profil`], nw: ["Nouveau resto", `@${o.u} a ajouté ${o.m || "un resto"}`], rx: ["Nouvelle réaction", `@${o.u} a réagi ${o.e || ""} à ${o.m || "ton resto"}`], cm: ["Nouveau commentaire", `@${o.u} : ${o.x || ""}`] }[o.ty] || ["Crumb", "Nouvelle activité"];
+  const payload = JSON.stringify({ title: T[0], body: T[1], tag: o.ty === "msg" ? "msg-" + o.u : o.ty, url: o.url || "/" });
   const keep = [];
   await Promise.all(subs.map(async (s) => { try { const c = await pushOne(s, payload); if (c !== 404 && c !== 410) keep.push(s); } catch { keep.push(s); } }));
   if (keep.length !== subs.length) await st.setJSON(k, keep).catch(() => {});
@@ -444,8 +444,8 @@ const handle = async (req, ctx) => {
     return J({ ok: 1 });
   }
   if (a === "unblock") { self.bl = (self.bl || []).filter((x) => x !== nm(u)); await saveU(me, self); return J({ ok: 1 }); }
-  if (a === "setna") { self.na = !!v; await saveU(me, self); return J({ ok: 1, na: self.na }); }
-  if (a === "blocks") return J({ list: self.bl || [], na: self.na !== false, rcn: (self.rc || []).length, adm: !!ENV.ADMIN && ENV.ADMIN === me });
+  if (a === "setna") { if (B.k === "nm") self.nm = !!v; else self.na = !!v; await saveU(me, self); return J({ ok: 1, na: self.na !== false, nm: self.nm !== false }); }
+  if (a === "blocks") return J({ list: self.bl || [], na: self.na !== false, nm: self.nm !== false, rcn: (self.rc || []).length, adm: !!ENV.ADMIN && ENV.ADMIN === me });
   if (a === "report") {
     if (await limit("rp:" + me, 10, 36e5)) return TOO();
     const n = nm(u);
@@ -597,6 +597,11 @@ const handle = async (req, ctx) => {
     const ibm = await ibGet(me);
     ibm.t[n] = { ts: mm.t, from: me, m: prev, un: 0 };
     await st.setJSON("ib/" + me, ibm);
+    const ro = await st.get("u/" + n, { type: "json" });
+    if (ro && ro.nm !== false && !(ro.bl || []).includes(me)) {
+      const pp = pushTo(st, n, { ty: "msg", u: me, m: prev, url: "/?chat=" + me }).catch(() => {});
+      if (ctx && ctx.waitUntil) ctx.waitUntil(pp); else await pp;
+    }
     return J({ msg: mm });
   }
   if (a === "mreact") {
